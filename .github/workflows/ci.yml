@@ -48,7 +48,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --all-targets
-      - run: cargo test --doc
+      # `cargo test --doc` would error with "no library targets found" —
+      # this crate is binary-only since the v0.1.0 single-crate collapse
+      # (see docs/ADR/0002). Doc comments still get rendered by
+      # `cargo doc --no-deps` in the `docs` job below.
 
   agent-rules:
     name: agent rules
