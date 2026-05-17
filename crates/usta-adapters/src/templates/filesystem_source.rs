@@ -22,6 +22,7 @@ use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 use usta_core::loaded::{InjectionFile, LoadedTemplate, MergeFile, TemplateContent, TemplateFile};
+use usta_core::paths::to_forward_slashes;
 use usta_core::plan::{AnchorContribution, MergeFormat};
 use usta_core::template::{Template, TemplateId};
 use usta_ports::template_source::{TemplateSource, TemplateSourceError};
@@ -67,13 +68,16 @@ impl FilesystemTemplateSource {
             let abs = entry.path();
             let rel = abs.strip_prefix(dir).expect("walked under dir");
 
-            // Strip a trailing `.j2` to derive the destination path.
+            // Strip a trailing `.j2` to derive the destination path. The
+            // path is then normalized to forward slashes so downstream code
+            // (snapshot, lock file, anchor markers) sees one canonical form
+            // on every OS.
             let (dest_rel, render) = match rel.extension() {
                 Some(ext) if ext == "j2" => {
                     let stem = rel.with_extension("");
-                    (stem, true)
+                    (to_forward_slashes(&stem), true)
                 }
-                _ => (rel.to_path_buf(), false),
+                _ => (to_forward_slashes(rel), false),
             };
 
             let bytes = std::fs::read(abs).map_err(|e| TemplateSourceError::Io {
@@ -297,8 +301,15 @@ impl FilesystemTemplateSource {
 
 /// `package.json.merge.json` → (`package.json`, Json).
 /// `apps/api/pyproject.toml.merge.toml` → (`apps/api/pyproject.toml`, Toml).
+///
+/// The returned path uses forward slashes regardless of host OS — it ends
+/// up in [`MergeFile::target`] which is compared against template-file
+/// `rel_path`s (also normalized) and embedded in `.usta/snapshot.toml`.
 fn strip_merge_suffix(rel: &Path) -> Option<(PathBuf, MergeFormat)> {
-    let s = rel.to_string_lossy();
+    // Normalize first so suffix matching works against `/`-joined input
+    // on every OS (Windows would otherwise see `apps\api\pyproject...`).
+    let normalized = to_forward_slashes(rel);
+    let s = normalized.to_string_lossy();
     if let Some(stem) = s.strip_suffix(".merge.json") {
         return Some((PathBuf::from(stem), MergeFormat::Json));
     }
@@ -307,8 +318,11 @@ fn strip_merge_suffix(rel: &Path) -> Option<(PathBuf, MergeFormat)> {
 }
 
 /// `apps/api/main.py.inject.toml` → `apps/api/main.py`.
+///
+/// Forward-slash normalized for the same reason as [`strip_merge_suffix`].
 fn strip_inject_suffix(rel: &Path) -> Option<PathBuf> {
-    let s = rel.to_string_lossy();
+    let normalized = to_forward_slashes(rel);
+    let s = normalized.to_string_lossy();
     s.strip_suffix(".inject.toml").map(PathBuf::from)
 }
 

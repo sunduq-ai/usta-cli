@@ -21,6 +21,7 @@ pub mod extract;
 pub mod inject;
 pub mod loaded;
 pub mod merge;
+pub mod paths;
 pub mod plan;
 pub mod project;
 pub mod resolver;

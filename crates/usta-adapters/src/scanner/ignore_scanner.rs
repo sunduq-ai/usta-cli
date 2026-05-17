@@ -3,6 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use ignore::WalkBuilder;
+use usta_core::paths::to_forward_slashes;
 use usta_ports::repo_scanner::{RepoScanner, ScanError, ScannedFile};
 
 /// Walks a repository, honoring `.gitignore` and an optional
@@ -47,8 +48,11 @@ impl RepoScanner for IgnoreScanner {
             }
             let rel = p
                 .strip_prefix(root)
-                .map_err(|e| ScanError::Io(format!("strip prefix: {e}")))?
-                .to_path_buf();
+                .map_err(|e| ScanError::Io(format!("strip prefix: {e}")))?;
+            // Normalize to forward slashes so `.usta/managed.lock` and
+            // `.usta/snapshot.toml` (which embed these paths) stay portable
+            // across Windows/macOS/Linux.
+            let rel = to_forward_slashes(rel);
 
             let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
             out.push(ScannedFile {
@@ -98,8 +102,11 @@ mod tests {
     fn scans_simple_tree_in_stable_order() {
         let d = tempdir().unwrap();
         write(&d.path().join("README.md"), b"hi");
-        write(&d.path().join("src/main.rs"), b"fn main() {}");
-        write(&d.path().join("src/lib.rs"), b"pub mod x;");
+        // `join` uses the platform separator; the scanner must normalize
+        // so this assertion holds on Windows too. The lock/snapshot files
+        // need cross-platform stable paths.
+        write(&d.path().join("src").join("main.rs"), b"fn main() {}");
+        write(&d.path().join("src").join("lib.rs"), b"pub mod x;");
 
         let s = IgnoreScanner::new();
         let files = s.scan(d.path()).unwrap();
