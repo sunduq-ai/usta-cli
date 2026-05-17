@@ -7,7 +7,7 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
-readme.workspace = true
+readme = "README.md"
 keywords = ["scaffold", "template", "generator", "cli", "monorepo"]
 categories = ["command-line-utilities", "development-tools"]
 
@@ -16,10 +16,10 @@ name = "usta"
 path = "src/main.rs"
 
 [dependencies]
-usta-core = { path = "../usta-core" }
-usta-ports = { path = "../usta-ports" }
-usta-app = { path = "../usta-app" }
-usta-adapters = { path = "../usta-adapters" }
+usta-core = { version = "0.1.0", path = "../usta-core" }
+usta-ports = { version = "0.1.0", path = "../usta-ports" }
+usta-app = { version = "0.1.0", path = "../usta-app" }
+usta-adapters = { version = "0.1.0", path = "../usta-adapters" }
 
 anyhow.workspace = true
 clap.workspace = true

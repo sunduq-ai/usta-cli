@@ -1321,7 +1321,7 @@ checksum = "81e544489bf3d8ef66c953931f56617f423cd4b5494be343d9b9d3dda037b9a3"
 
 [[package]]
 name = "usta"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1344,7 +1344,7 @@ dependencies = [
 
 [[package]]
 name = "usta-adapters"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "ignore",
  "inquire",
@@ -1363,7 +1363,7 @@ dependencies = [
 
 [[package]]
 name = "usta-app"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "globset",
  "semver",
@@ -1378,7 +1378,7 @@ dependencies = [
 
 [[package]]
 name = "usta-core"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "semver",
  "serde",
@@ -1388,7 +1388,7 @@ dependencies = [
 
 [[package]]
 name = "usta-ports"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
