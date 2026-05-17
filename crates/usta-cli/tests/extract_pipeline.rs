@@ -110,7 +110,10 @@ fn extracts_synthetic_repo_into_well_formed_template() {
     // Manifest is valid TOML and parses.
     let manifest_text = fs::read_to_string(template_dir.join("template.toml")).unwrap();
     let manifest: toml::Value = toml::from_str(&manifest_text).expect("valid template.toml");
-    assert_eq!(manifest["template"]["id"].as_str(), Some("my-existing-app-shape"));
+    assert_eq!(
+        manifest["template"]["id"].as_str(),
+        Some("my-existing-app-shape")
+    );
     assert_eq!(
         manifest["template"]["display_name"].as_str(),
         Some("MyExistingApp Shape")
