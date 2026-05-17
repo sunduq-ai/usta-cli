@@ -1,6 +1,6 @@
 # ADR 0001: Hexagonal architecture across five crates
 
-- **Status**: Accepted
+- **Status**: SUPERSEDED — see [ADR-0002](./0002-single-crate-collapse.md)
 - **Date**: 2026-05-08
 - **Phase**: P0
 

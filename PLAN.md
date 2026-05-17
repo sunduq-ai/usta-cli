@@ -5,10 +5,11 @@
 > in [`AGENTS.md`](./AGENTS.md), [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md),
 > and [`docs/NON_GOALS.md`](./docs/NON_GOALS.md).
 
-## Status — 2026-05-08
+## Status — 2026-05-17
 
 | Phase | Status | Summary |
 |------:|:------:|---------|
+| **P6** — Single-crate collapse (v0.1.0 publish prep) | ✅ done | Workspace collapsed to a single `usta` crate; former crates kept as modules (`src/core`, `src/ports`, `src/app`, `src/adapters`, `src/commands`, `src/wiring.rs`) preserving the hexagonal layout. `scripts/check-layers.sh` and `scripts/check-forbidden-imports.sh` deleted — their intent now lives in `scripts/check-agent-rules.sh`. Per-crate README files removed. Layer discipline is now code-review-enforced rather than Cargo-enforced. Ready for `cargo publish` as a single crate. |
 | **P0** — Skeleton | ✅ done | Workspace + 5 crates compile, all CI gates green locally. |
 | **P1** — Core engine | ✅ done (a–i) | resolver · LocalFs+proptest · template loader · plan build/exec · prompts · `usta new` end-to-end · snapshot+lock · JSON/TOML deep-merge + anchor injection (incl. JSX). P1.j deferred to P5. |
 | **P2** — `nx-monorepo` template | ✅ done + audited | **13 features** (api-fastapi/mongodb/auth-jwt · web-vite-react/router/tanstack-query/i18n · mobile-expo · shared-types/utils/ui · docker · tooling-husky) · **6 integration tests** · all 13 features exercised · injection-content rendering verified · `.usta/managed.lock` and `.usta/snapshot.toml` format-validated. |

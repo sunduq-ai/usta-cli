@@ -8,13 +8,13 @@ alwaysApply: true
 
 Read [`AGENTS.md`](mdc:AGENTS.md) for the full rule set. The highlights:
 
-- The crate graph is the law: `usta-core` ← `usta-ports` ← `usta-app` ← `usta-adapters` ← binary.
-- `usta-core` and `usta-ports` are I/O free. No `tokio`, no `reqwest`, no `git2`, no `std::fs`, no `std::process`.
-- `usta-app` cannot import `usta-adapters`. Compiler enforces this.
-- Concrete adapters are wired only in `crates/usta-cli/src/wiring.rs`.
-- `extract` is deterministic. No network LLM calls anywhere in the crate graph.
+- The module dependency rule is the law: `crate::core` ← `crate::ports` ← `crate::app` ← `crate::adapters` ← `crate::wiring`. Code review enforces; was Cargo-enforced before the v0.1.0 single-crate collapse.
+- `crate::core` and `crate::ports` are I/O free. No `tokio`, no `reqwest`, no `git2`, no `std::fs`, no `std::process`.
+- `crate::app` cannot import from `crate::adapters`.
+- Concrete adapters are wired only in `src/wiring.rs`.
+- `extract` is deterministic. No network LLM calls anywhere in the engine.
 - New behavior goes behind a new trait (OCP). Traits stay narrow (ISP, ≤ 5 methods).
-- Library crates use `thiserror`. `anyhow` only in the binary.
+- Engine modules use `thiserror`. `anyhow` only at the binary boundary (main.rs, commands/, wiring.rs).
 - Conventional Commits required. `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` must pass.
 - Don't propose anything from [`docs/NON_GOALS.md`](mdc:docs/NON_GOALS.md) without an ADR.
 - Path traversal: never write outside the resolved output directory.

@@ -1,6 +1,6 @@
 # Extract pipeline
 
-> Status: contract spec. Implementation lands in P3.
+> Status: contract spec. Implemented in P3 (modules under `crate::app::extract` and `crate::adapters`).
 
 `usta extract <repo>` synthesizes a template from an existing repository
 **deterministically** — no LLM calls, no network beyond cloning the source.
@@ -51,7 +51,7 @@ Tree-sitter–backed:
 - Replace project-specific identifiers via the `replacements` table
   (e.g. `my-existing-app` → `{{ project_name }}`, `MyExistingApp` → `{{ project_name | pascal }}`).
 
-### 5. Synthesize (`TemplateSynthesizer` in `usta-app`)
+### 5. Synthesize (`TemplateSynthesizer` in `crate::app`)
 
 - Group surviving files into features by **path heuristics** (e.g. files
   under `apps/api/src/infrastructure/mongodb/` → feature `api-mongodb`).

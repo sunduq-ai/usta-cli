@@ -1327,73 +1327,23 @@ dependencies = [
  "assert_cmd",
  "clap",
  "clap_complete",
+ "globset",
+ "ignore",
  "indicatif",
+ "inquire",
+ "minijinja",
  "predicates",
+ "proptest",
+ "semver",
  "serde",
  "serde_json",
+ "sha2",
  "tempfile",
+ "thiserror",
  "toml",
  "tracing",
  "tracing-subscriber",
- "usta-adapters",
- "usta-app",
- "usta-core",
- "usta-ports",
  "walkdir",
-]
-
-[[package]]
-name = "usta-adapters"
-version = "0.1.0"
-dependencies = [
- "ignore",
- "inquire",
- "minijinja",
- "proptest",
- "serde",
- "serde_json",
- "sha2",
- "tempfile",
- "thiserror",
- "toml",
- "usta-core",
- "usta-ports",
- "walkdir",
-]
-
-[[package]]
-name = "usta-app"
-version = "0.1.0"
-dependencies = [
- "globset",
- "semver",
- "serde",
- "serde_json",
- "sha2",
- "thiserror",
- "toml",
- "usta-core",
- "usta-ports",
-]
-
-[[package]]
-name = "usta-core"
-version = "0.1.0"
-dependencies = [
- "semver",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "usta-ports"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
- "usta-core",
 ]
 
 [[package]]

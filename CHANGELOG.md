@@ -38,10 +38,15 @@ The initial release. The engine + the `nx-monorepo` template land here.
   feature application with idempotent merges + smart inject error path),
   **`usta update`** (3-way merge against `.usta/managed.lock`,
   conflicts → `.usta/proposed/<path>`, exit 40).
-- **Hexagonal architecture**: 5 crates (`usta-core` / `usta-ports` /
-  `usta-app` / `usta-adapters` / binary), with the dependency rule
-  enforced by the Cargo crate graph and a `scripts/check-layers.sh`
-  guardrail.
+- **Hexagonal architecture**: originally five crates (`usta-core` /
+  `usta-ports` / `usta-app` / `usta-adapters` / binary), collapsed
+  before release into a single `usta` crate with the same layout
+  preserved as modules (`src/core`, `src/ports`, `src/app`,
+  `src/adapters`, `src/commands`, `src/wiring.rs`). The dependency
+  rule is now enforced by `scripts/check-agent-rules.sh` and code
+  review rather than the Cargo crate graph. See ADR-0002.
+- **First crates.io publish**: shipped as a single `usta` crate so
+  `cargo install usta` works in one step.
 - **Path-traversal write-jail** on the local filesystem adapter, covered
   by a `proptest` property test.
 - **`nx-monorepo` template** with 13 features: API (FastAPI / MongoDB /
@@ -56,7 +61,8 @@ The initial release. The engine + the `nx-monorepo` template land here.
 - `AGENTS.md` (rules for human and AI contributors), `CLAUDE.md`,
   `.cursor/rules/usta.mdc`.
 - `docs/ARCHITECTURE.md`, `docs/NON_GOALS.md`, `docs/EXTRACT.md`,
-  `docs/TEMPLATE_AUTHORING.md`, `docs/ADR/0001-hexagonal-architecture.md`.
+  `docs/TEMPLATE_AUTHORING.md`, `docs/ADR/0001-hexagonal-architecture.md`,
+  `docs/ADR/0002-single-crate-collapse.md`.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, dual
   MIT / Apache-2.0 licenses.
 

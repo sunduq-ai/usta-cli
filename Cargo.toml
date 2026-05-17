@@ -1,14 +1,6 @@
-[workspace]
-resolver = "2"
-members = [
-    "crates/usta-core",
-    "crates/usta-ports",
-    "crates/usta-app",
-    "crates/usta-adapters",
-    "crates/usta-cli",
-]
-
-[workspace.package]
+[package]
+name = "usta"
+description = "Multi-stack project scaffolder with deterministic template extraction."
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
@@ -20,14 +12,17 @@ readme = "README.md"
 keywords = ["scaffold", "template", "generator", "cli", "monorepo"]
 categories = ["command-line-utilities", "development-tools"]
 
-[workspace.dependencies]
-# Domain / port layer — keep this list MINIMAL and I/O-FREE.
-# CI (scripts/check-layers.sh) enforces no I/O crates leak into core/ports.
+[[bin]]
+name = "usta"
+path = "src/main.rs"
+
+[dependencies]
+# Domain types — pure, no I/O.
 thiserror = "2.0"
 serde = { version = "1.0", features = ["derive"] }
 semver = { version = "1.0", features = ["serde"] }
 
-# Adapter / binary layer dependencies (allowed everywhere except core/ports).
+# Application + adapter deps.
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4.5"
@@ -42,10 +37,15 @@ globset = "0.4"
 sha2 = "0.11"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
 tempfile = "3.13"
 assert_cmd = "2.0"
 predicates = "3.1"
 proptest = "1.5"
+
+[lints.rust]
+unsafe_code = "forbid"
 
 [profile.release]
 lto = "thin"
@@ -66,7 +66,7 @@ debug = true
 # - crates.io API token in CARGO_REGISTRY_TOKEN repo secret
 # - (optional) Homebrew tap repo + HOMEBREW_TAP_TOKEN
 # Until those are set, `release.yml` only runs the build-binaries job.
-[workspace.metadata.dist]
+[package.metadata.dist]
 cargo-dist-version = "0.22.1"
 ci = "github"
 installers = ["shell", "powershell", "homebrew"]

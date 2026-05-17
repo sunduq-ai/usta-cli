@@ -27,7 +27,7 @@ on the user's machine where it has access to their package managers and VCS.
 Adds a privacy surface area before there is enough usage to justify it.
 Revisit only when concrete prioritization questions cannot be answered any
 other way, and only as fully opt-in, anonymized, off by default. The
-`Telemetry` port already exists in `usta-ports` so a future no-op-by-default
+`Telemetry` port already exists in `crate::ports` so a future no-op-by-default
 adapter can land without churn.
 
 ## Built-in TUI app explorer
@@ -46,8 +46,8 @@ host an index, we do not require accounts.
 
 `extract` is deterministic. The `SourceClassifier` port permits a future
 local-only adapter (e.g. Ollama on `127.0.0.1`) — never a hosted LLM. CI
-greps for forbidden imports (`openai`, `anthropic-sdk`, `genai`, …) and
-fails on any match.
+greps for forbidden imports (`openai`, `anthropic-sdk`, `genai`, …) via
+`scripts/check-agent-rules.sh` and fails on any match.
 
 ## Auto-formatting / opinionated code rewrites beyond template scope
 

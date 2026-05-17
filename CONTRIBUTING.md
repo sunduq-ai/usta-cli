@@ -17,9 +17,9 @@ agents under the same rules.
 
 ```bash
 # pin via rust-toolchain.toml (Rust 1.91+)
-cargo build --workspace
-cargo test  --workspace
-cargo run -p usta -- --help
+cargo build
+cargo test
+cargo run -- --help
 ```
 
 ## Local quality checks
@@ -28,11 +28,9 @@ These run in CI; run them locally before pushing.
 
 ```bash
 cargo fmt --all -- --check
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test  --workspace
-scripts/check-layers.sh           # crate-graph layering
-scripts/check-forbidden-imports.sh # no LLM SDKs, no I/O in core/ports
-scripts/check-agent-rules.sh      # superset; runs the above + manifest validation
+cargo clippy --all-targets -- -D warnings
+cargo test
+scripts/check-agent-rules.sh      # module-layer + forbidden-import + manifest checks
 ```
 
 ## PR checklist
@@ -42,10 +40,12 @@ A PR is mergeable when:
 - [ ] Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`,
       `chore:`, `build:`, `ci:`).
 - [ ] `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` pass.
-- [ ] Layering rules pass (`scripts/check-layers.sh`).
+- [ ] Module-layer rules pass (`scripts/check-agent-rules.sh`). Since the
+      v0.1.0 single-crate collapse, the compiler no longer rejects
+      cross-layer imports — reviewers do.
 - [ ] No new dependency without an ADR justifying it.
-- [ ] Public items in `usta-core` / `usta-ports` / `usta-app` carry doc
-      comments.
+- [ ] Public items in `crate::core` / `crate::ports` / `crate::app` carry
+      doc comments.
 - [ ] If the change touches a template, the snapshot e2e test under
       `templates/<id>/tests/` is updated; the diff is acknowledged in the
       PR description.
@@ -62,16 +62,14 @@ templates go under `templates/<id>/` and ship with a snapshot test.
 
 ## Adding a new adapter
 
-Add a module under `crates/usta-adapters/src/`, implement the relevant
-trait from `usta-ports`, and register it in
-`crates/usta-cli/src/wiring.rs`. Don't import the new adapter type
-anywhere else.
+Add a module under `src/adapters/`, implement the relevant trait from
+`crate::ports`, and register it in `src/wiring.rs`. Don't import the new
+adapter type anywhere else.
 
 ## Releasing
 
 Releases are cut by a maintainer via `cargo-dist`. CI publishes binaries to
-GitHub Releases and (after `crates.io` namespace is secured in P5) the
-crate to crates.io.
+GitHub Releases and the single `usta` crate to crates.io.
 
 ## Code of Conduct
 

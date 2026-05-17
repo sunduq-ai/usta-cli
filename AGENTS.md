@@ -11,32 +11,40 @@ generated projects in sync with template upgrades, and synthesizes templates
 from existing repositories — **without making any network LLM calls**. Saving
 tokens on app creation is the headline benefit.
 
-## 1. Architecture invariants (CI-enforced)
+## 1. Architecture invariants (code-review enforced)
 
-The crate graph is the law:
+The module dependency rule is the law:
 
 ```
-usta-core   ←  usta-ports
-                  ↑
-              usta-app
-                  ↑
-              usta-adapters
-                  ↑
-              usta-cli (binary, the only composition root)
+crate::core   ←  crate::ports
+                    ↑
+                crate::app
+                    ↑
+                crate::adapters
+                    ↑
+                crate::wiring (composition root, called from main.rs)
 ```
 
-- `usta-core` and `usta-ports` MUST NOT depend on any I/O crate. Forbidden in
-  their `Cargo.toml`: `tokio`, `reqwest`, `git2`, `std::process` usage,
-  `std::fs` writes/reads. They may use `std::path::Path` as a value type.
-- `usta-app` MAY depend on `usta-core` and `usta-ports`. It MUST NOT depend
-  on `usta-adapters`.
-- Concrete adapter types (anything from `usta-adapters`) are mentioned ONLY
-  inside `crates/usta-cli/src/wiring.rs`. No other module should import an
-  adapter struct.
+Until v0.1.0 these were five separate crates and the dependency rule was
+**compiler-enforced** via Cargo's crate graph. For publishing ergonomics
+(`cargo install usta` from a single registry entry) the workspace was
+collapsed into one crate; the hexagonal layout survives as `src/` modules.
+The trade-off: layer discipline is now a **code-review responsibility**.
+See `docs/ADR/0002-single-crate-collapse.md` for the rationale.
+
+- `crate::core` and `crate::ports` MUST NOT use any I/O. Forbidden: `tokio`,
+  `reqwest`, `git2`, `std::process`, `std::fs` writes/reads. They may use
+  `std::path::Path` as a value type.
+- `crate::app` MAY depend on `crate::core` and `crate::ports`. It MUST NOT
+  import from `crate::adapters`.
+- Concrete adapter types (anything from `crate::adapters`) are mentioned
+  ONLY inside `src/wiring.rs`. No other module should import an adapter
+  struct.
 - `Box<dyn Trait>` only at the composition root. Use generic type parameters
-  with trait bounds in `usta-app` use cases.
+  with trait bounds in `crate::app` use cases.
 
-`scripts/check-layers.sh` runs in CI and fails the build on violations.
+`scripts/check-agent-rules.sh` runs in CI and includes the soft hygiene
+checks. If layer creep becomes a recurring problem, add a grep-based lint.
 
 ## 2. SOLID checklist
 
@@ -50,17 +58,18 @@ Every PR must be answerable "yes" to each:
   (e.g. `FileSystem::write` MUST refuse to escape the write jail).
 - **ISP**: ports stay narrow. If two callers need disjoint subsets of a
   trait, split the trait.
-- **DIP**: use cases depend on `usta-ports` traits, never on
-  `usta-adapters` types. The compiler enforces this via the crate graph.
+- **DIP**: use cases depend on `crate::ports` traits, never on
+  `crate::adapters` types. Code review enforces this; the compiler used to
+  via the crate graph before v0.1.0's single-crate collapse.
 
 ## 3. The `extract` invariants
 
 - Default operation is fully deterministic. Same input → same output.
-- No network LLM calls anywhere in the crate graph.
+- No network LLM calls anywhere in the engine.
 - Optional local-only AI (e.g. Ollama on `127.0.0.1`) MAY be added in a
   future minor version, behind a port + an opt-in flag, behind a feature
-  flag, never as the default. `usta-core`/`usta-ports`/`usta-app` MUST NOT
-  import a network HTTP client.
+  flag, never as the default. `crate::core`/`crate::ports`/`crate::app`
+  MUST NOT import a network HTTP client.
 - Sanitized output never contains source-repo identifiers (verified by
   snapshot tests).
 
@@ -75,7 +84,7 @@ Every PR must be answerable "yes" to each:
 ## 5. Adding a template
 
 - A new template lives at `templates/<id>/`.
-- It MUST NOT require edits to `usta-core` or `usta-app`. If you find
+- It MUST NOT require edits to `crate::core` or `crate::app`. If you find
   yourself editing them, the abstraction is wrong — open an ADR before
   shipping.
 - It MUST ship: `template.toml`, an `AGENTS.md.j2` seed for the generated
@@ -86,8 +95,9 @@ Every PR must be answerable "yes" to each:
 
 ## 6. Testing
 
-- Every use case in `usta-app` has a unit test using in-memory adapters
-  from `usta-adapters` (test-only re-exports allowed via `[dev-dependencies]`).
+- Every use case in `crate::app` has a unit test using in-memory adapters
+  defined locally in `#[cfg(test)]` modules (since the layers no longer
+  live in separate crates, in-memory adapters are scoped per-test-module).
 - Every adapter has at least one integration test against the real backend
   (filesystem via `tempfile`, child process via real binaries on PATH).
 - Every template has a snapshot e2e test that scaffolds into `tempfile::tempdir()`
@@ -99,8 +109,9 @@ Every PR must be answerable "yes" to each:
 
 ## 7. Errors
 
-- Library crates (`core`, `ports`, `app`, `adapters`) use **typed** errors
-  via `thiserror`. No `anyhow` outside the binary.
+- Engine modules (`core`, `ports`, `app`, `adapters`) use **typed** errors
+  via `thiserror`. `anyhow` only at the binary boundary (`main.rs`,
+  `commands/`, `wiring.rs`).
 - Every variant maps to a stable exit code documented in
   `docs/ARCHITECTURE.md`.
 - User-facing error messages name the file path or template id involved.
@@ -148,5 +159,4 @@ includes a checkbox confirming the change is not on the non-goals list.
 - When adding a feature folder under a template, look at an existing
   feature first — anchor markers and merge conventions are stable.
 - Run `scripts/check-agent-rules.sh` locally before pushing. It runs the
-  layer check, forbidden-import grep, manifest schema validation, and
-  conventional-commit lint.
+  forbidden-LLM-import grep, fmt, clippy, and tests.

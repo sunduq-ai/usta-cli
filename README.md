@@ -69,29 +69,35 @@ default, no LLM calls in core flows, no lock-in to a single ecosystem.
 
 ## How it works
 
-`usta` is built as a hexagonal Rust workspace:
+`usta` is a single Rust crate organized as a hexagonal layered engine:
 
 ```
-usta-core   ←  usta-ports  ←  usta-app  ←  usta-adapters  ←  usta-cli (binary)
+src/core ← src/ports ← src/app ← src/adapters ← src/wiring (main.rs)
 ```
 
 Trait-based ports define what the engine needs (filesystem, prompts,
 renderer, package manager, scanner, sanitizer …). Concrete adapters live
-behind those traits and are wired only in the binary. Use cases stay pure.
-This is what lets us add a new template, a new package manager, or a new
-language sanitizer **without editing the core**.
+behind those traits and are wired only in `src/wiring.rs`. Use cases stay
+pure. This is what lets us add a new template, a new package manager, or
+a new language sanitizer **without editing the core**.
+
+> Before v0.1.0 the engine lived in five separate crates and the
+> dependency rule was Cargo-enforced. For publishing ergonomics
+> (`cargo install usta` from a single registry entry) the workspace was
+> collapsed into one crate; the architecture survives as `src/` modules.
+> See [`docs/ADR/0002-single-crate-collapse.md`](./docs/ADR/0002-single-crate-collapse.md)
+> for the rationale.
 
 See [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) for the diagram and the
 exit-code table, and [`AGENTS.md`](./AGENTS.md) for the rules of the road.
 
 ## Status
 
-**v0.1.0 surface ready** — engine, two built-in templates (`hello-world`,
+**v0.1.0 ready for publish** — engine, two built-in templates (`hello-world`,
 `nx-monorepo` with 13 features), `extract` / `verify` / `add` / `update`,
-schema export, dry-run preview, record/replay, 136 tests passing.
+schema export, dry-run preview, record/replay, 152 tests passing.
 
-Not yet released to crates.io / Homebrew (binary distribution lands once
-release credentials are configured). Until then build from source:
+Build from source until the first release lands on crates.io / Homebrew:
 
 ```bash
 git clone https://github.com/sunduq-ai/usta-cli
