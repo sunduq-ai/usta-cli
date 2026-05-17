@@ -1,9 +1,13 @@
 //! Composition root.
 //!
-//! This is the **only** module allowed to mention concrete adapter types.
-//! `commands/*.rs` may also instantiate adapters directly (they are part of
-//! the binary, not the use-case layer); the layer-check script grants them
-//! that exemption.
+//! This is the **only** module outside `crate::adapters` allowed to mention
+//! concrete adapter types. `crate::commands::*` may also instantiate adapters
+//! directly — they are part of the binary, not the use-case layer, and the
+//! exemption keeps simple read-only commands (e.g. `usta list`) from needing
+//! a wiring helper each. The layer rule used to be Cargo-enforced when this
+//! lived in `usta-cli`; since the v0.1.0 single-crate collapse it's a code
+//! review responsibility. See `docs/ARCHITECTURE.md` and
+//! `docs/ADR/0002-single-crate-collapse.md`.
 
 use std::path::PathBuf;
 
