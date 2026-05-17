@@ -25,6 +25,7 @@ use std::path::{Path, PathBuf};
 
 use thiserror::Error;
 use usta_core::loaded::LoadedTemplate;
+use usta_core::paths::to_forward_slashes;
 use usta_core::plan::FileOp;
 use usta_core::resolver;
 use usta_core::snapshot::{ManagedLock, Snapshot};
@@ -178,8 +179,12 @@ where
                             outcome.unchanged.push(path.clone());
                             new_lock.files.insert(path.clone(), new_hash);
                         } else {
-                            // Conflict.
-                            let proposed = PathBuf::from(PROPOSED_DIR).join(path);
+                            // Conflict. Normalize so the proposal path
+                            // (which surfaces in user-facing messages and
+                            // would otherwise be `.usta/proposed\src/lib.rs`
+                            // on Windows) uses forward slashes throughout.
+                            let proposed =
+                                to_forward_slashes(&PathBuf::from(PROPOSED_DIR).join(path));
                             fs.write(&proposed, &new_bytes, true)?;
                             outcome.conflicts.push(path.clone());
                             // Keep the old lock entry so subsequent verifies

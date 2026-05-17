@@ -3,6 +3,7 @@
 
 use std::path::{Path, PathBuf};
 
+use usta_core::paths::to_forward_slashes;
 use usta_ports::fs::FileSystem;
 
 use super::{ExtractError, ExtractedTemplate};
@@ -17,18 +18,19 @@ pub fn write_extracted_template<F: FileSystem>(
 ) -> Result<usize, ExtractError> {
     let template_dir: PathBuf = PathBuf::from(&template.manifest.id().0);
 
-    // Manifest first.
+    // Manifest first. Normalize the destination so paths handed to the FS
+    // adapter (and any in-memory map) are portable across Windows/macOS/Linux.
     let manifest_text = toml::to_string_pretty(&template.manifest)
         .map_err(|e| ExtractError::Synthesis(format!("serialize manifest: {e}")))?;
     fs.write(
-        &template_dir.join("template.toml"),
+        &to_forward_slashes(&template_dir.join("template.toml")),
         manifest_text.as_bytes(),
         force,
     )?;
 
     // Files.
     for file in &template.files {
-        let dest = template_dir.join(&file.rel_path);
+        let dest = to_forward_slashes(&template_dir.join(&file.rel_path));
         fs.write(&dest, &file.bytes, force)?;
     }
 
@@ -39,9 +41,10 @@ pub fn write_extracted_template<F: FileSystem>(
 /// destination under the template tree's `base/` directory.
 ///
 /// Tests live next to this so the path mechanics stay verifiable without a
-/// full extract run.
+/// full extract run. The returned path always uses forward slashes so
+/// downstream code (snapshot, lock file) stays cross-platform stable.
 pub fn base_path(rel: &Path) -> PathBuf {
-    PathBuf::from("base").join(rel)
+    to_forward_slashes(&PathBuf::from("base").join(rel))
 }
 
 #[cfg(test)]

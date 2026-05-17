@@ -13,6 +13,7 @@ use semver::{Version, VersionReq};
 use usta_core::extract::{
     apply_identifier_substitutions, default_drop_globs, looks_like_text, ExtractConfig,
 };
+use usta_core::paths::to_forward_slashes;
 use usta_core::template::{Feature, FeatureId, Template, TemplateId, TemplateMeta};
 
 use super::ExtractError;
@@ -100,13 +101,20 @@ pub fn synthesize(
         // Compose the destination path inside the template tree. Add a
         // `.j2` suffix only when substitution actually changed the file
         // (to avoid forcing every file through the renderer at scaffold).
-        let mut tree_rel = match bucket {
+        //
+        // `PathBuf::join` uses the host's separator (`\` on Windows), but
+        // `rel_path` was already normalized to `/` by the scanner — joining
+        // would produce mixed `base\src/lib.rs`. Re-normalize so every
+        // path written into the template tree (and ultimately into
+        // `.usta/managed.lock` for projects scaffolded from it) is portable.
+        let composed = match bucket {
             Bucket::Base => PathBuf::from("base").join(rel_path),
             Bucket::Feature(ref fid) => PathBuf::from("features")
                 .join(&fid.0)
                 .join("files")
                 .join(rel_path),
         };
+        let mut tree_rel = to_forward_slashes(&composed);
         if content_changed {
             tree_rel = with_appended_extension(&tree_rel, "j2");
         }
