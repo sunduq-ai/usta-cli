@@ -1,0 +1,7 @@
+[[at]]
+marker  = "usta:imports"
+content = "from src.api.routers.auth import router as auth_router"
+
+[[at]]
+marker  = "usta:routers"
+content = 'app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])'

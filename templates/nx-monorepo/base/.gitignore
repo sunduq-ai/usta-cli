@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Nx
+.nx/
+.cache/
+nx-cloud.env
+
+# Vite
+*.local
+.vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+*.egg-info/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Secrets
+*.pem
+*.p12
+secrets/
+
+# Usta state — KEEP (the snapshot+lock are how `usta update` knows where this came from)
+!.usta/

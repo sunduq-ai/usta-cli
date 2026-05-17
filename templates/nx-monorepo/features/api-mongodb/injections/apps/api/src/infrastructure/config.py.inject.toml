@@ -1,0 +1,6 @@
+[[at]]
+marker  = "usta:settings"
+content = '''
+MONGODB_URL: str = "mongodb://localhost:27017"
+MONGODB_DATABASE: str = "{{ project_name }}"
+'''

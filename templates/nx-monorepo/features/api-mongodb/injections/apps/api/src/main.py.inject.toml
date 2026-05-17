@@ -1,0 +1,11 @@
+[[at]]
+marker  = "usta:imports"
+content = "from src.infrastructure.mongodb import close_mongo_connection, connect_to_mongo"
+
+[[at]]
+marker  = "usta:lifespan_startup"
+content = "await connect_to_mongo()"
+
+[[at]]
+marker  = "usta:lifespan_shutdown"
+content = "await close_mongo_connection()"

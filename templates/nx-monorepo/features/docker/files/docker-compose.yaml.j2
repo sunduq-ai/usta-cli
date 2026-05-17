@@ -1,0 +1,35 @@
+# {{ project_name }} — local docker-compose
+# Run: docker compose up -d
+
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: {{ project_name }}-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - SECRET_KEY=${SECRET_KEY:-change-me}
+    networks:
+      - {{ project_name }}-net
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: {{ project_name }}-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - {{ project_name }}-net
+
+networks:
+  {{ project_name }}-net:
+    driver: bridge

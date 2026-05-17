@@ -1,0 +1,12 @@
+# Default reviewer for everything not otherwise claimed.
+*                              @mo7amed-3bdalla7
+
+# Architectural / contract files require explicit review.
+/docs/ADR/                     @mo7amed-3bdalla7
+/docs/NON_GOALS.md             @mo7amed-3bdalla7
+/AGENTS.md                     @mo7amed-3bdalla7
+/scripts/check-layers.sh       @mo7amed-3bdalla7
+/scripts/check-agent-rules.sh  @mo7amed-3bdalla7
+
+# Per-template owners go here as the catalogue grows.
+# /templates/nx-monorepo/      @<maintainer>

@@ -1,0 +1,74 @@
+# AGENTS.md — {{ project_name }}
+
+This project was scaffolded by [`usta`](https://github.com/sunduq-ai/usta-cli)
+from the **`nx-monorepo`** template. The notes below describe the
+architecture choices baked into this scaffold so that AI agents (and humans)
+working on it stay on the rails the template author intended.
+
+## Quick orientation
+
+- **Monorepo manager:** Nx + pnpm.
+- **Apps:** live under `apps/`. Each app has its own `package.json` (or
+  `pyproject.toml`) and `project.json`.
+- **Shared packages:** live under `packages/shared/`. They export TypeScript
+  via `src/index.ts` and are wired into the root `tsconfig.base.json`
+  `paths` map.
+- **API (if `api-fastapi` selected):** lives at `apps/api/`. Layered:
+  `domain/` → `application/` → `api/` (routers/dto/schemas) and
+  `infrastructure/` (concrete adapters: MongoDB, Redis, storage, …).
+  This is the same hexagonal split the CLI itself uses — domain rules are
+  pure, I/O lives in `infrastructure/`.
+- **Web (if `web-vite-react` selected):** lives at `apps/web/`. Vite +
+  React + Tailwind, with optional shadcn primitives in
+  `packages/shared/ui`. Routes (if `web-router`) live in `src/pages/`.
+- **Mobile (if `mobile-expo` selected):** lives at `apps/mobile/`. Expo +
+  NativeWind.
+
+## Commands you'll need often
+
+```bash
+pnpm install                                       # workspace bootstrap
+pnpm dev                                           # run all dev servers
+pnpm test                                          # nx run-many test
+pnpm lint                                          # nx run-many lint
+pnpm typecheck                                     # nx run-many typecheck
+
+# Per-app
+nx run web:dev
+nx run api:dev          # if api-fastapi selected
+nx run mobile:start     # if mobile-expo selected
+```
+
+## Updating from the template
+
+This project keeps a snapshot of how it was scaffolded under
+[`.usta/snapshot.toml`](./.usta/snapshot.toml) and a manifest of
+template-managed files in [`.usta/managed.lock`](./.usta/managed.lock).
+
+```bash
+usta verify          # show drift between managed files and the lock
+usta update          # re-render the template at its current version
+                     # (3-way merge against your edits)
+usta add <feature>   # apply a feature you didn't pick at scaffold time
+```
+
+Don't hand-edit the files in `.usta/` — they are written by `usta` and
+support the update workflow.
+
+## What NOT to do
+
+- **Don't import `infrastructure/*` from `domain/*`** in the API. The whole
+  point of the layered split is that the domain stays I/O-free.
+- **Don't add a network LLM dependency** without an explicit decision — the
+  template doesn't ship one, and most contributors don't expect one to
+  appear.
+- **Don't bypass `nx run`** — running tools directly works but breaks Nx's
+  cache and `nx affected`. Stick to `pnpm <script>` or `nx run …`.
+
+## Where to look
+
+- This file (`AGENTS.md`) — agent rules.
+- `README.md` — user-facing overview.
+- `apps/*/README.md` — per-app notes (if present).
+
+Tagline: {{ description }}

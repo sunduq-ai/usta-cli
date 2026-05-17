@@ -1,0 +1,7 @@
+[[at]]
+marker  = "usta:imports"
+content = "import { BrowserRouter } from 'react-router-dom';"
+
+[[at]]
+marker  = "usta:provider-entries"
+content = "{ Component: BrowserRouter as React.ComponentType<{ children: React.ReactNode }> },"

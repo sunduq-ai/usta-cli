@@ -1,0 +1,14 @@
+[[at]]
+marker  = "usta:imports"
+content = """
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+"""
+
+[[at]]
+marker  = "usta:app-children"
+content = """
+<Routes>
+  <Route path="/" element={<Home />} />
+</Routes>
+"""

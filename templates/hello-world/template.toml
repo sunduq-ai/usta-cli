@@ -1,0 +1,48 @@
+# Minimal end-to-end fixture used by P1 integration tests and as the
+# simplest "does the engine work" probe. Real templates (nx-monorepo, …)
+# arrive in P2.
+
+[template]
+id           = "hello-world"
+display_name = "Hello World"
+version      = "0.1.0"
+min_usta     = ">=0.1.0"
+stacks       = ["any"]
+
+[[features]]
+id           = "greeting"
+display_name = "Add a HELLO.txt greeting file"
+default      = true
+requires     = []
+conflicts    = []
+stacks       = []
+
+[[features]]
+id           = "license-mit"
+display_name = "Include an MIT-style LICENSE stub"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = []
+
+[[features]]
+id           = "with-deps"
+display_name = "Add a `lodash` dependency to package.json (exercises merge)"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = []
+
+[[features]]
+id           = "with-router"
+display_name = "Add an import line via anchor injection into index.js"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = []
+
+[[prompts]]
+id       = "tagline"
+type     = "text"
+question = "One-line tagline (used in README)"
+default  = "An app scaffolded with usta."

@@ -1,0 +1,3 @@
+[[at]]
+marker  = "usta:tsconfig-paths"
+content = '"@{{ scope }}/shared-types": ["packages/shared/types/src/index.ts"],'

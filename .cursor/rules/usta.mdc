@@ -1,0 +1,21 @@
+---
+description: Rules for working on the usta-cli repository
+globs: ["**/*.rs", "**/Cargo.toml", "templates/**", "docs/**", ".github/**"]
+alwaysApply: true
+---
+
+# usta-cli rules
+
+Read [`AGENTS.md`](mdc:AGENTS.md) for the full rule set. The highlights:
+
+- The crate graph is the law: `usta-core` ← `usta-ports` ← `usta-app` ← `usta-adapters` ← binary.
+- `usta-core` and `usta-ports` are I/O free. No `tokio`, no `reqwest`, no `git2`, no `std::fs`, no `std::process`.
+- `usta-app` cannot import `usta-adapters`. Compiler enforces this.
+- Concrete adapters are wired only in `crates/usta-cli/src/wiring.rs`.
+- `extract` is deterministic. No network LLM calls anywhere in the crate graph.
+- New behavior goes behind a new trait (OCP). Traits stay narrow (ISP, ≤ 5 methods).
+- Library crates use `thiserror`. `anyhow` only in the binary.
+- Conventional Commits required. `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` must pass.
+- Don't propose anything from [`docs/NON_GOALS.md`](mdc:docs/NON_GOALS.md) without an ADR.
+- Path traversal: never write outside the resolved output directory.
+- Update [`PLAN.md`](mdc:PLAN.md) as phases progress.

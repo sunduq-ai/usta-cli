@@ -1,0 +1,87 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/usta-core",
+    "crates/usta-ports",
+    "crates/usta-app",
+    "crates/usta-adapters",
+    "crates/usta-cli",
+]
+
+[workspace.package]
+version = "0.1.0-dev"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sunduq-ai/usta-cli"
+homepage = "https://github.com/sunduq-ai/usta-cli"
+authors = ["Mohamed Abdelwahed"]
+readme = "README.md"
+keywords = ["scaffold", "template", "generator", "cli", "monorepo"]
+categories = ["command-line-utilities", "development-tools"]
+
+[workspace.dependencies]
+# Domain / port layer — keep this list MINIMAL and I/O-FREE.
+# CI (scripts/check-layers.sh) enforces no I/O crates leak into core/ports.
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+semver = { version = "1.0", features = ["serde"] }
+
+# Adapter / binary layer dependencies (allowed everywhere except core/ports).
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5"
+inquire = "0.9"
+indicatif = "0.18"
+minijinja = { version = "2.5", features = ["loader"] }
+serde_json = "1.0"
+toml = "1.1"
+ignore = "0.4"
+walkdir = "2.5"
+globset = "0.4"
+sha2 = "0.11"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tempfile = "3.13"
+assert_cmd = "2.0"
+predicates = "3.1"
+proptest = "1.5"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+# `cargo-dist` config. Generates the release.yml workflow that builds
+# cross-platform binaries on tag, attaches them to a GitHub Release, and
+# produces a shell installer + Homebrew tap. Run `cargo dist init` once
+# locally (interactive) to verify, then push the tag.
+#
+# Maintainer credentials needed BEFORE first publish:
+# - crates.io API token in CARGO_REGISTRY_TOKEN repo secret
+# - (optional) Homebrew tap repo + HOMEBREW_TAP_TOKEN
+# Until those are set, `release.yml` only runs the build-binaries job.
+[workspace.metadata.dist]
+cargo-dist-version = "0.22.1"
+ci = "github"
+installers = ["shell", "powershell", "homebrew"]
+tap = "sunduq-ai/homebrew-tap"
+publish-jobs = ["homebrew"]
+targets = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+]
+pr-run-mode = "plan"
+allow-dirty = ["ci"]
+
+[profile.dist]
+inherits = "release"
+lto = "thin"

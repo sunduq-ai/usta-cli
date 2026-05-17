@@ -1,0 +1,20 @@
+{
+  "name": "@{{ scope }}/shared-ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@{{ scope }}/shared-utils": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.14"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
+}

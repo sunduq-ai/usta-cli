@@ -1,0 +1,3 @@
+[[at]]
+marker  = "usta:imports"
+content = "const router = require('./router');"

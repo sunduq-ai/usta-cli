@@ -1,0 +1,7 @@
+[[at]]
+marker  = "usta:imports"
+content = "import { I18nProvider } from './i18n/I18nProvider';"
+
+[[at]]
+marker  = "usta:provider-entries"
+content = "{ Component: I18nProvider },"

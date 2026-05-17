@@ -1,0 +1,39 @@
+# {{ project_name }}
+
+> {{ description }}
+
+Scaffolded by [`usta`](https://github.com/sunduq-ai/usta-cli) from
+the **`nx-monorepo`** template.
+
+## Layout
+
+```
+{{ project_name }}/
+├── apps/                       # applications (api / web / mobile)
+├── packages/
+│   └── shared/                 # cross-app packages (types / ui / utils / …)
+├── pnpm-workspace.yaml
+├── nx.json
+├── tsconfig.base.json
+├── eslint.config.js
+├── AGENTS.md                   # rules for AI/human contributors
+└── .usta/                      # ← do not edit; managed by `usta`
+```
+
+## Quick start
+
+```bash
+pnpm install
+pnpm dev
+```
+
+## Updating from the template
+
+```bash
+usta verify          # detect drift in template-managed files
+usta update          # 3-way merge an upstream template release
+usta add <feature>   # apply a feature you didn't pick
+```
+
+See [`AGENTS.md`](./AGENTS.md) for the architecture conventions and the
+list of selected features.

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.nx/
+.cache/
+coverage/
+**/__pycache__/
+.venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+packages/shared/api/generated/
+apps/api/openapi.json
+pnpm-lock.yaml
+apps/mobile/.expo/

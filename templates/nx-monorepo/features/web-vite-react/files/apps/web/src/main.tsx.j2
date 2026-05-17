@@ -1,0 +1,33 @@
+/* eslint-disable react-refresh/only-export-components */
+import React from 'react';
+
+import ReactDOM from 'react-dom/client';
+
+// usta:imports
+
+import App from './App';
+import './index.css';
+
+/**
+ * Provider entries are gathered here from optional features (router,
+ * query client, i18n, theme, …). They wrap `<App />` from inside-out at
+ * mount time. Features inject entries via an anchor marker below.
+ */
+type ProviderEntry = {
+  Component: React.ComponentType<{ children: React.ReactNode }>;
+};
+
+const providers: ProviderEntry[] = [
+  // usta:provider-entries
+];
+
+function withProviders(node: React.ReactNode): React.ReactNode {
+  return providers.reduceRight(
+    (child, P) => <P.Component>{child}</P.Component>,
+    node
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>{withProviders(<App />)}</React.StrictMode>
+);

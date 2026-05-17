@@ -1,0 +1,28 @@
+{
+  "name": "{{ project_name }}",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "{{ description }}",
+  "packageManager": "pnpm@9.14.4",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "nx run-many --target=dev --all",
+    "build": "nx run-many --target=build --all",
+    "test": "nx run-many --target=test --all",
+    "lint": "nx run-many --target=lint --all",
+    "lint:fix": "nx run-many --target=lint --all -- --fix",
+    "typecheck": "nx run-many --target=typecheck --all",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "@nx/js": "^20.2.1",
+    "nx": "^20.2.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,89 @@
+# ─────────────────────────── Rust / Cargo ───────────────────────────
+/target
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock IS tracked here — usta is a binary, not a library, so the
+# lockfile guarantees reproducible builds. (For library-only crates we'd
+# add `Cargo.lock` here.)
+
+# proptest regressions IS tracked — failing inputs become permanent
+# regression tests on the property tests. See:
+#   https://altsysrq.github.io/proptest-book/proptest/failure-persistence.html
+
+# ─────────────────────────── Secrets ────────────────────────────────
+# Anything with a credential, key, or token. Be paranoid here.
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.crt
+*.pfx
+*.kdbx
+secrets/
+.cargo/credentials.toml
+.cargo/credentials
+
+# ─────────────────────────── Editors / IDEs ─────────────────────────
+.idea/
+.vscode/
+.fleet/
+.zed/
+*.swp
+*.swo
+*.bak
+*.orig
+*~
+
+# ─────────────────────────── OS noise ───────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─────────────────────────── Tooling caches ─────────────────────────
+.direnv/
+.cache/
+.fleet/
+
+# Coverage outputs (cargo-llvm-cov, tarpaulin, etc.)
+*.profraw
+*.profdata
+coverage/
+tarpaulin-report.html
+cobertura.xml
+lcov.info
+
+# Profiling outputs
+flamegraph.svg
+perf.data
+perf.data.old
+*.dSYM/
+
+# ─────────────────────────── Logs ───────────────────────────────────
+*.log
+
+# ─────────────────────────── Local usta state ───────────────────────
+# `.usta/` here would only appear if someone scaffolds INTO this repo
+# by mistake (e.g. `usta new my-app` from the repo root). The ignore
+# protects us from accidentally committing scaffold output.
+#
+# In *generated projects*, `.usta/` is intentionally tracked (see the
+# nx-monorepo template's base/.gitignore, which uses `!.usta/`).
+.usta/
+
+# Per-user local overrides
+*.local
+
+# Generated test fixtures (ad-hoc — vast majority of tests use tempfile)
+/tests/tmp/
+
+
+.claude/

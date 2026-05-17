@@ -1,0 +1,135 @@
+# Nx-monorepo template — modeled on the my-existing-app workspace.
+#
+# Always-present (base): pnpm + Nx workspace skeleton, root tsconfig,
+# eslint, prettier, gitignore, AGENTS.md.j2 seed.
+#
+# Opt-in (features): each feature is self-contained under
+# `features/<id>/` with its own `files/`, `merges/`, and `injections/`.
+# See docs/TEMPLATE_AUTHORING.md for the contract.
+
+[template]
+id           = "nx-monorepo"
+display_name = "Nx Monorepo (TS + Python)"
+version      = "0.1.0"
+min_usta     = ">=0.1.0"
+stacks       = ["typescript", "python"]
+
+# ─────────────────────────── API features ────────────────────────────
+[[features]]
+id           = "api-fastapi"
+display_name = "API: FastAPI + uv"
+default      = true
+requires     = []
+conflicts    = []
+stacks       = ["python"]
+
+[[features]]
+id           = "api-mongodb"
+display_name = "API: MongoDB (motor) client"
+default      = false
+requires     = ["api-fastapi"]
+conflicts    = []
+stacks       = ["python"]
+
+[[features]]
+id           = "api-auth-jwt"
+display_name = "API: JWT auth (login + me)"
+default      = false
+requires     = ["api-fastapi"]
+conflicts    = []
+stacks       = ["python"]
+
+# ─────────────────────────── Web features ────────────────────────────
+[[features]]
+id           = "web-vite-react"
+display_name = "Web: Vite + React + Tailwind + shadcn-ready"
+default      = true
+requires     = []
+conflicts    = []
+stacks       = ["typescript"]
+
+[[features]]
+id           = "web-router"
+display_name = "Web: react-router-dom v7"
+default      = false
+requires     = ["web-vite-react"]
+conflicts    = []
+stacks       = ["typescript"]
+
+[[features]]
+id           = "web-tanstack-query"
+display_name = "Web: TanStack Query"
+default      = false
+requires     = ["web-vite-react"]
+conflicts    = []
+stacks       = ["typescript"]
+
+[[features]]
+id           = "web-i18n"
+display_name = "Web: i18next + LanguageSwitcher"
+default      = false
+requires     = ["web-vite-react"]
+conflicts    = []
+stacks       = ["typescript"]
+
+# ─────────────────────────── Mobile features ─────────────────────────
+[[features]]
+id           = "mobile-expo"
+display_name = "Mobile: Expo + NativeWind"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = ["typescript"]
+
+# ─────────────────────────── Shared packages ─────────────────────────
+[[features]]
+id           = "shared-types"
+display_name = "Shared: types package skeleton"
+default      = true
+requires     = []
+conflicts    = []
+stacks       = ["typescript"]
+
+[[features]]
+id           = "shared-utils"
+display_name = "Shared: utils package skeleton"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = ["typescript"]
+
+[[features]]
+id           = "shared-ui"
+display_name = "Shared: UI primitives package (shadcn-ready)"
+default      = false
+requires     = ["shared-utils"]
+conflicts    = []
+stacks       = ["typescript"]
+
+# ─────────────────────────── Cross-cutting ───────────────────────────
+[[features]]
+id           = "docker"
+display_name = "Docker: per-app Dockerfiles + docker-compose.yaml"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = []
+
+[[features]]
+id           = "tooling-husky"
+display_name = "Tooling: Husky + lint-staged"
+default      = false
+requires     = []
+conflicts    = []
+stacks       = ["typescript"]
+
+# ─────────────────────────── Prompts ─────────────────────────────────
+# `project_name` and `scope` are populated by the binary itself; templates
+# don't need to declare them. Add prompts here that are specific to this
+# template's choices.
+
+[[prompts]]
+id       = "description"
+type     = "text"
+question = "Project description"
+default  = "An app scaffolded with usta."
