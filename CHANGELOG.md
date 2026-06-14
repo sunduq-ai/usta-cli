@@ -10,6 +10,14 @@ in each template's `template.toml` and pinned in every generated project's
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.2.0] — 2026-05-17
+
+Breaking release. Trims the CLI to only what works, fixes a marker-leak
+bug in generated projects, and corrects the MSRV. `cargo install usta`
+continues to work unchanged.
+
 ### Fixed
 - **Anchor markers no longer leak into generated projects.** A scaffold
   that didn't select every optional feature used to leave internal
@@ -41,11 +49,9 @@ in each template's `template.toml` and pinned in every generated project's
 The initial release. The engine + the `nx-monorepo` template land here.
 Published to crates.io as a single `usta` crate.
 
-The shipping CLI surface is **9 subcommands**: `new`, `extract`, `update`,
-`add`, `verify`, `list`, `doctor`, `completions`, `schema`. The
-GitHub-topic template registry (`search` / `install`) and binary
-self-update (`self-update`) are deferred to v0.2; their stubs were
-removed before release rather than shipped as commands that only error.
+This release shipped 12 subcommands, three of which (`search`, `install`,
+`self-update`) were non-functional stubs that exited 64. They were
+removed in 0.2.0; the working surface is the other 9.
 
 ### Added
 

@@ -93,11 +93,13 @@ exit-code table, and [`AGENTS.md`](./AGENTS.md) for the rules of the road.
 
 ## Status
 
-**v0.1.0 ready for publish** — engine, two built-in templates (`hello-world`,
-`nx-monorepo` with 13 features), `extract` / `verify` / `add` / `update`,
-schema export, dry-run preview, record/replay, 152 tests passing.
+**v0.2.0 — published on [crates.io](https://crates.io/crates/usta).**
+Engine, two built-in templates (`hello-world`, `nx-monorepo` with 13
+features), `extract` / `verify` / `add` / `update`, schema export,
+dry-run preview, record/replay, 156 tests passing. Install with
+`cargo install usta`.
 
-Build from source until the first release lands on crates.io / Homebrew:
+Build from source if you prefer:
 
 ```bash
 git clone https://github.com/sunduq-ai/usta-cli
