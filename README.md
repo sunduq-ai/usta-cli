@@ -95,10 +95,11 @@ exit-code table, and [`AGENTS.md`](./AGENTS.md) for the rules of the road.
 
 ## Status
 
-**v0.2.0 — published on [crates.io](https://crates.io/crates/usta).**
+**v0.3.0 — published on [crates.io](https://crates.io/crates/usta).**
 Engine, two built-in templates (`hello-world`, `nx-monorepo` with 13
-features), `extract` / `verify` / `add` / `update`, schema export,
-dry-run preview, record/replay, 156 tests passing. Install with
+features) **embedded in the binary** so `cargo install usta` works with
+zero setup, `extract` / `verify` / `add` / `update`, schema export,
+dry-run preview, record/replay, 162 tests passing. Install with
 `cargo install usta`.
 
 Build from source if you prefer:

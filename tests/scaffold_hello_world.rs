@@ -213,3 +213,55 @@ fn rejects_invalid_project_name() {
         .assert()
         .failure();
 }
+
+#[test]
+fn scaffolds_from_embedded_templates_without_templates_dir() {
+    // The headline fix: a `cargo install`ed binary has no `templates/` dir
+    // around it, so `usta new` must fall back to the templates embedded in
+    // the binary. The tempdir lives under the OS temp root (not under the
+    // repo), so the ancestor-walk finds no `templates/` and the embedded
+    // fallback kicks in. NOTE: deliberately no `--templates-dir`.
+    let workdir = tempdir().expect("tempdir");
+    Command::cargo_bin("usta")
+        .expect("binary")
+        .current_dir(workdir.path())
+        .args(["new", "embedded-app", "--template", "hello-world"])
+        .arg("--yes")
+        .arg("--no-git")
+        .arg("--no-install")
+        .assert()
+        .success();
+
+    let project = workdir.path().join("embedded-app");
+    assert!(project.join("package.json").is_file());
+    assert!(project.join(".usta/snapshot.toml").is_file());
+    // Rendered, not verbatim.
+    let readme = std::fs::read_to_string(project.join("README.md")).expect("README");
+    assert!(readme.contains("embedded-app") && !readme.contains("{{"));
+}
+
+#[test]
+fn unknown_feature_suggests_closest() {
+    // A typo'd feature should produce a "did you mean?" hint, not a bare
+    // "unknown feature".
+    let workdir = tempdir().expect("tempdir");
+    Command::cargo_bin("usta")
+        .expect("binary")
+        .current_dir(workdir.path())
+        .args([
+            "new",
+            "app",
+            "--template",
+            "hello-world",
+            "--features",
+            "greetng", // typo of `greeting`
+            "--templates-dir",
+        ])
+        .arg(templates_dir())
+        .arg("--yes")
+        .arg("--no-git")
+        .arg("--no-install")
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("did you mean `greeting`"));
+}

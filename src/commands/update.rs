@@ -50,8 +50,9 @@ pub fn run(args: UpdateArgs) -> Result<()> {
     let snap_text = std::fs::read_to_string(&snapshot_path).context("read snapshot")?;
     let snapshot: Snapshot = toml::from_str(&snap_text).context("parse snapshot")?;
 
-    let templates_dir = resolve_templates_dir(args.templates_dir.as_ref(), &project_root)
-        .context("locating templates directory")?;
+    let templates_dir =
+        crate::wiring::resolve_templates_dir(args.templates_dir.as_deref(), &project_root)
+            .context("locating templates directory")?;
     let source = FilesystemTemplateSource::new(templates_dir.clone());
     let template = source
         .load(&TemplateId(snapshot.template_id.0.clone()))
@@ -102,25 +103,4 @@ pub fn run(args: UpdateArgs) -> Result<()> {
         std::process::exit(40); // documented exit code
     }
     Ok(())
-}
-
-fn resolve_templates_dir(
-    explicit: Option<&PathBuf>,
-    project_root: &std::path::Path,
-) -> Result<PathBuf> {
-    if let Some(p) = explicit {
-        if !p.is_dir() {
-            return Err(anyhow!("--templates-dir not a directory: {}", p.display()));
-        }
-        return Ok(p.clone());
-    }
-    for dir in project_root.ancestors() {
-        let cand = dir.join("templates");
-        if cand.is_dir() {
-            return Ok(cand);
-        }
-    }
-    Err(anyhow!(
-        "no templates directory found; pass --templates-dir or USTA_TEMPLATES_DIR"
-    ))
 }

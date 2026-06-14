@@ -56,7 +56,7 @@ pub fn run(cmd: ListCmd) -> Result<()> {
 }
 
 fn list_templates(json: bool, dir: Option<PathBuf>) -> Result<()> {
-    let dir = resolve_dir(dir)?;
+    let dir = resolve_list_dir(dir)?;
     let source = FilesystemTemplateSource::new(&dir);
     let ids = source.list_ids();
 
@@ -119,7 +119,7 @@ fn list_templates(json: bool, dir: Option<PathBuf>) -> Result<()> {
 }
 
 fn list_features(template_id: &str, json: bool, dir: Option<PathBuf>) -> Result<()> {
-    let dir = resolve_dir(dir)?;
+    let dir = resolve_list_dir(dir)?;
     let source = FilesystemTemplateSource::new(&dir);
     let id = TemplateId(template_id.to_string());
     let loaded = source
@@ -167,23 +167,9 @@ fn list_features(template_id: &str, json: bool, dir: Option<PathBuf>) -> Result<
     Ok(())
 }
 
-fn resolve_dir(explicit: Option<PathBuf>) -> Result<PathBuf> {
-    if let Some(p) = explicit {
-        if !p.is_dir() {
-            return Err(anyhow!("not a directory: {}", p.display()));
-        }
-        return Ok(p);
-    }
+fn resolve_list_dir(explicit: Option<PathBuf>) -> Result<PathBuf> {
     let cwd = std::env::current_dir().context("getting cwd")?;
-    for dir in cwd.ancestors() {
-        let cand = dir.join("templates");
-        if cand.is_dir() {
-            return Ok(cand);
-        }
-    }
-    Err(anyhow!(
-        "no templates directory found; pass --templates-dir or USTA_TEMPLATES_DIR"
-    ))
+    crate::wiring::resolve_templates_dir(explicit.as_deref(), &cwd)
 }
 
 #[derive(Debug)]

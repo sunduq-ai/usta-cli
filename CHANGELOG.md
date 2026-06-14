@@ -12,6 +12,42 @@ in each template's `template.toml` and pinned in every generated project's
 
 _Nothing yet._
 
+## [0.3.0] — 2026-05-17
+
+Makes `cargo install usta` actually usable out of the box, plus friendlier
+errors. Found by dogfooding the published binary as a fresh user.
+
+### Added
+- **Built-in templates are embedded in the binary.** `cargo install usta`
+  followed by `usta new my-app --template nx-monorepo` now works with no
+  `--templates-dir` — previously it dead-ended on "no templates directory
+  found" because the templates shipped in the crate tarball weren't
+  installed alongside the binary. The built-ins (`hello-world`,
+  `nx-monorepo`) are embedded via `include_dir` and extracted to a
+  per-version cache dir (`$XDG_CACHE_HOME/usta/` etc.) on first use.
+  Resolution order is unchanged for everyone else: `--templates-dir` /
+  `USTA_TEMPLATES_DIR` → a `templates/` dir found by walking up from the
+  cwd → the embedded built-ins.
+- **"Did you mean?" suggestions** for a mistyped `--template` or feature
+  id (e.g. `--features api-fastpai` → "did you mean `api-fastapi`?"),
+  with the full list of valid ids when nothing is close.
+
+### Fixed
+- **hello-world generated a broken project.** Its `base/index.js` carried
+  `{{ project_name }}` but wasn't a `.j2`, so it shipped the literal
+  template variable; and the `with-router` feature injected
+  `require('./router')` without shipping `router.js`, so `node index.js`
+  crashed. Both fixed; regression tests now run the output, not just
+  inspect it.
+- **Doubled phrasing** in the invalid-project-name error
+  (`invalid project name \`X\`: invalid project name: …`) collapsed to a
+  single clear message.
+
+### Internal
+- The four duplicated `resolve_templates_dir` / `resolve_dir` copies
+  (`new`, `add`, `update`, `list`) are now one shared
+  `wiring::resolve_templates_dir`.
+
 ## [0.2.1] — 2026-05-17
 
 Packaging and docs only — no code or behavior changes.

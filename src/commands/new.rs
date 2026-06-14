@@ -118,8 +118,8 @@ pub fn run(args: NewArgs) -> Result<()> {
             .text("Project name", None)
             .map_err(|e| anyhow!("prompt failed: {e}"))?
     };
-    let project_name = ProjectName::parse(raw_name.clone())
-        .map_err(|e| anyhow!("invalid project name `{raw_name}`: {e}"))?;
+    let project_name =
+        ProjectName::parse(raw_name.clone()).map_err(|e| anyhow!("{e} (got `{raw_name}`)"))?;
 
     // 2. Resolve target directory.
     //    Precedence: --output flag > current working directory.
@@ -179,7 +179,8 @@ pub fn run(args: NewArgs) -> Result<()> {
 
     // 3. Load the template from a filesystem source.
     //    Replay's template id wins over --template if both set.
-    let templates_dir = resolve_templates_dir(args.templates_dir.as_ref())
+    let cwd = std::env::current_dir().context("getting cwd")?;
+    let templates_dir = wiring::resolve_templates_dir(args.templates_dir.as_deref(), &cwd)
         .context("locating templates directory")?;
     let source = wiring::build_template_source(templates_dir.clone());
     let template_id_str = replay
@@ -187,9 +188,11 @@ pub fn run(args: NewArgs) -> Result<()> {
         .map(|r| r.template.clone())
         .unwrap_or_else(|| args.template.clone());
     let tid = TemplateId(template_id_str.clone());
-    let template = source
-        .load(&tid)
-        .map_err(|e| anyhow!("loading template `{}`: {e}", template_id_str))?;
+    let template = source.load(&tid).map_err(|e| {
+        let ids: Vec<String> = source.list_ids().into_iter().map(|i| i.0).collect();
+        let hint = crate::commands::suggestion_hint(&template_id_str, &ids);
+        anyhow!("loading template `{template_id_str}`: {e}{hint}")
+    })?;
 
     // 4. Build the answer context.
     //    Replay reuses the recorded answer map verbatim; otherwise we run
@@ -249,6 +252,21 @@ pub fn run(args: NewArgs) -> Result<()> {
     } else {
         prompt_features(&template, prompt_ui.as_ref())?
     };
+
+    // 5b. Validate the requested features against the template up front, so a
+    // typo gets a "did you mean?" hint instead of a bare "unknown feature".
+    let known: Vec<String> = template
+        .manifest
+        .features
+        .iter()
+        .map(|f| f.id.0.clone())
+        .collect();
+    for f in &selected {
+        if !known.contains(&f.0) {
+            let hint = crate::commands::suggestion_hint(&f.0, &known);
+            return Err(anyhow!("unknown feature `{}`{hint}", f.0));
+        }
+    }
 
     // 6. Dry-run? Print the plan and exit before doing any I/O.
     if args.dry_run {
@@ -427,27 +445,6 @@ struct RecordedAnswers {
     /// Answer map used at scaffold time. `project_name` and `scope` are
     /// stored alongside template-prompted answers for portability.
     answers: BTreeMap<String, serde_json::Value>,
-}
-
-fn resolve_templates_dir(explicit: Option<&PathBuf>) -> Result<PathBuf> {
-    if let Some(p) = explicit {
-        if !p.is_dir() {
-            return Err(anyhow!("--templates-dir not a directory: {}", p.display()));
-        }
-        return Ok(p.clone());
-    }
-    // Default: look up `./templates/` relative to cwd, then walk upward to the
-    // workspace root (containing `Cargo.toml` workspace) — useful in dev.
-    let cwd = std::env::current_dir()?;
-    for dir in cwd.ancestors() {
-        let cand = dir.join("templates");
-        if cand.is_dir() {
-            return Ok(cand);
-        }
-    }
-    Err(anyhow!(
-        "no templates directory found; pass --templates-dir or USTA_TEMPLATES_DIR"
-    ))
 }
 
 fn run_prompt(
