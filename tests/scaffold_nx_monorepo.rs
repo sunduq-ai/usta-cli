@@ -1,6 +1,6 @@
 //! Integration test for the `nx-monorepo` template.
 //!
-//! Exercises every feature category we ship in P2:
+//! Exercises every feature category in the nx-monorepo template:
 //! - base workspace files (package.json, nx.json, tsconfig.base.json, …)
 //! - API features (fastapi + mongodb + auth-jwt) with anchor injection +
 //!   pyproject.toml deep-merge
@@ -164,7 +164,7 @@ fn full_stack_with_all_api_and_web_features() {
     // The mongodb feature's config.py.inject.toml has
     //   MONGODB_DATABASE: str = "{{ project_name }}"
     // which only renders correctly if injection content is run through
-    // the template engine (the P1.i bug fix).
+    // the template engine (the injection-content rendering fix).
     let config_py = read(&project.join("apps/api/src/infrastructure/config.py"));
     assert!(
         config_py.contains(r#"MONGODB_DATABASE: str = "full-app""#),

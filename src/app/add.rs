@@ -19,7 +19,7 @@
 //!      marker is no longer present in the file, surface a clear error and
 //!      point the user at `usta update` — adding contributions to an
 //!      anchor that was already finalized requires the 3-way merge
-//!      machinery in P4.c.
+//!      machinery (`usta update`).
 //! 7. Update snapshot (features = resolved order; created_at unchanged but
 //!    add a new event timestamp) and lock (merge in new digests).
 //!

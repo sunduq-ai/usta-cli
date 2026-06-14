@@ -1,7 +1,7 @@
 # Template authoring
 
-> Status: contract spec. Schema lands in P1; the first template
-> (`nx-monorepo`) lands in P2.
+> Status: implemented. The manifest schema and the built-in templates
+> (`hello-world`, `nx-monorepo`) ship in v0.1.0.
 
 A template is a folder under `templates/<id>/` with a manifest and a set of
 features. The engine never special-cases template ids — every template uses

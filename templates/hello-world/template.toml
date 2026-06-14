@@ -1,6 +1,6 @@
-# Minimal end-to-end fixture used by P1 integration tests and as the
-# simplest "does the engine work" probe. Real templates (nx-monorepo, …)
-# arrive in P2.
+# Minimal end-to-end fixture used by integration tests and as the
+# simplest "does the engine work" probe. Richer templates live alongside
+# (see `nx-monorepo`).
 
 [template]
 id           = "hello-world"

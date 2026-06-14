@@ -2,8 +2,8 @@
 //!
 //! Adapters implement this for each source kind:
 //! - filesystem (a path under `templates/`)
-//! - embedded (compiled into the binary via `include_dir`) — P2
-//! - cached (a community template under `~/.usta/templates/<id>`) — P5
+//! - embedded (compiled into the binary via `include_dir`) — planned
+//! - cached (a community template under `~/.usta/templates/<id>`) — planned
 //!
 //! Composing several adapters into one is a simple delegating wrapper that
 //! also lives in `crate::adapters`.

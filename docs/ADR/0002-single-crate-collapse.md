@@ -2,7 +2,6 @@
 
 - **Status**: Accepted
 - **Date**: 2026-05-17
-- **Phase**: P6
 - **Supersedes**: [ADR-0001](./0001-hexagonal-architecture.md)
 
 ## Context
@@ -67,7 +66,7 @@ types. The compiler no longer enforces it; reviewers and
   reviewer attention and the agent-rules script. ADR-0001 listed this
   as the reason _not_ to collapse; we are accepting the trade because
   the codebase has stabilized and the layers have proven self-enforcing
-  in practice over P1–P5.
+  in practice over the project's initial development.
 - If we ever want to expose the engine as a Rust library (so other
   binaries can embed `usta` programmatically), we will need to re-split
   — at minimum carving `core` + `ports` + `app` back into their own

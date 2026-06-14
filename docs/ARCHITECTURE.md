@@ -160,7 +160,7 @@ existing exit-1 contract.
 | 40   | Update conflict requires manual resolution. | ✓ |
 | 41   | `verify` detected drift. | ✓ |
 | 50   | Extract: ambiguous classification with `--no-interactive`. | (v0.2) |
-| 64   | "Stub, not yet implemented" (P0 placeholders only; never shipped in releases). | — |
+| 64   | "Stub, not yet implemented" (early-development placeholders only; never shipped in releases). | — |
 
 ## Composition root
 

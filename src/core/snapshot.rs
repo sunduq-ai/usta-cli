@@ -5,7 +5,7 @@
 //! - `.usta/snapshot.toml` — what was scaffolded, with which answers, from
 //!   which template version. This is what `usta update` uses to re-render.
 //! - `.usta/managed.lock` — SHA-256 of every file the template wrote, so
-//!   `usta verify` (P4) can detect drift, and `usta update` (P4) can tell
+//!   `usta verify` can detect drift, and `usta update` can tell
 //!   "user-edited" apart from "untouched, safe to overwrite".
 
 use std::collections::BTreeMap;

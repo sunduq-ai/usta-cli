@@ -1,9 +1,9 @@
 //! Plan executor — applies a [`ScaffoldPlan`] against the FS + renderer
 //! ports.
 //!
-//! In P1 only `FileOp::Write` is handled (with optional Jinja rendering
-//! deduced from the rendered-content marker). `FileOp::Merge` and
-//! `FileOp::Inject` are wired in P1.i.
+//! Handles all three op kinds: `FileOp::Write` (with optional Jinja
+//! rendering deduced from the rendered-content marker), `FileOp::Merge`
+//! (JSON/TOML deep-merge), and `FileOp::Inject` (anchor-marker injection).
 
 use std::collections::BTreeMap;
 

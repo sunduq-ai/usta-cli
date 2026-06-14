@@ -1,4 +1,4 @@
-//! List use case (built out in P5).
+//! List use case.
 
 /// Use case: enumerate templates and features.
 pub struct ListService;

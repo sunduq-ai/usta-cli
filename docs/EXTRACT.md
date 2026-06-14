@@ -1,6 +1,6 @@
 # Extract pipeline
 
-> Status: contract spec. Implemented in P3 (modules under `crate::app::extract` and `crate::adapters`).
+> Status: implemented — modules under `crate::app::extract` and `crate::adapters`.
 
 `usta extract <repo>` synthesizes a template from an existing repository
 **deterministically** — no LLM calls, no network beyond cloning the source.
