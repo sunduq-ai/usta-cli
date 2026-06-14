@@ -177,6 +177,20 @@ fn injection_inserts_import_into_anchor() {
         !js.contains("usta:imports"),
         "marker leaked into output:\n{js}"
     );
+    // Regression: the base `index.js` carries `{{ project_name }}` and must
+    // be rendered (it lives at `base/index.js.j2`), not copied verbatim.
+    // A past bug shipped it as `base/index.js`, so `node index.js` printed
+    // the literal `{{ project_name }}`.
+    assert!(
+        js.contains("hello from inject-app") && !js.contains("{{"),
+        "index.js must interpolate project_name, got:\n{js}"
+    );
+    // Regression: the `with-router` feature injects `require('./router')`,
+    // so it must ship `router.js` or the project crashes at runtime.
+    assert!(
+        project.join("router.js").is_file(),
+        "with-router must ship router.js for the injected require to resolve"
+    );
 }
 
 #[test]
