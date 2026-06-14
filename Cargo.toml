@@ -3,7 +3,11 @@ name = "usta"
 description = "Multi-stack project scaffolder with deterministic template extraction."
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.75"
+# Dependency-driven MSRV: clap 4.6, the RustCrypto stack (sha2 0.11 →
+# crypto-common/block-buffer), and others require 1.85. Verified against
+# the resolved dependency tree's declared `rust_version` fields. The CI
+# `msrv` job enforces this with `cargo +1.85.0 check`.
+rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sunduq-ai/usta-cli"
 homepage = "https://github.com/sunduq-ai/usta-cli"

@@ -67,9 +67,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.75.0
+      - uses: dtolnay/rust-toolchain@1.85.0
       - uses: Swatinem/rust-cache@v2
-      - run: cargo check
+      # The committed `rust-toolchain.toml` pins the dev toolchain and would
+      # otherwise override the job's toolchain (it wins over rustup's
+      # default). The explicit `+1.85.0` escapes it per-command so this
+      # genuinely checks the declared MSRV instead of the pinned version.
+      - run: cargo +1.85.0 check
 
   docs:
     name: cargo doc

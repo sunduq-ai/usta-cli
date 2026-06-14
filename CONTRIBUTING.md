@@ -16,7 +16,9 @@ agents under the same rules.
 ## Dev setup
 
 ```bash
-# pin via rust-toolchain.toml (Rust 1.91+)
+# The dev toolchain is pinned to a recent stable via rust-toolchain.toml.
+# The project's MSRV (minimum supported Rust) is 1.85, enforced by the
+# `msrv` CI job — keep new code compiling on 1.85.
 cargo build
 cargo test
 cargo run -- --help
