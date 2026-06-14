@@ -122,7 +122,48 @@ where
         }
     }
 
+    // Finalization: strip any anchor markers that no selected feature
+    // injected into. Without this, a marker like `# usta:imports` in a base
+    // file survives into the generated project as a stray comment whenever
+    // the optional feature that targets it isn't selected. See
+    // `strip_residual_markers`.
+    let written: Vec<std::path::PathBuf> = lock.files.keys().cloned().collect();
+    strip_residual_markers(fs, &written, &mut lock)?;
+
     Ok(lock)
+}
+
+/// Re-read each given managed text file and drop any leftover `usta:*`
+/// marker lines, updating the lock hash for files that changed. Binary
+/// files and files with no marker are left untouched (the strip is a cheap
+/// no-op on already-clean content).
+///
+/// Callers pass only the files they wrote this run — never user-owned
+/// conflict files — so a stray edit of someone's source is impossible.
+pub(crate) fn strip_residual_markers<F: FileSystem>(
+    fs: &F,
+    paths: &[std::path::PathBuf],
+    lock: &mut ManagedLock,
+) -> Result<(), ScaffoldError> {
+    for path in paths {
+        let bytes = match fs.read(path) {
+            Ok(b) => b,
+            Err(_) => continue, // not on disk (e.g. conflict-only) — skip
+        };
+        let Ok(text) = std::str::from_utf8(&bytes) else {
+            continue; // binary file — no markers possible
+        };
+        if !text.contains("usta:") {
+            continue;
+        }
+        let stripped = crate::core::inject::strip_markers(text);
+        if stripped.as_bytes() != bytes.as_slice() {
+            let new_bytes = stripped.into_bytes();
+            fs.write(path, &new_bytes, true)?;
+            lock.files.insert(path.clone(), sha256_hex(&new_bytes));
+        }
+    }
+    Ok(())
 }
 
 /// Read existing JSON/TOML at `path` (or start empty), deep-merge `overlay`,
@@ -212,11 +253,21 @@ mod tests {
                 .insert(path.to_path_buf(), bytes.to_vec());
             Ok(())
         }
-        fn read(&self, _: &Path) -> Result<Vec<u8>, FsError> {
-            unimplemented!()
+        fn read(&self, path: &Path) -> Result<Vec<u8>, FsError> {
+            // The scaffold executor's marker-stripping finalization reads
+            // back each written file, so this must return stored content.
+            self.files
+                .lock()
+                .unwrap()
+                .get(path)
+                .cloned()
+                .ok_or_else(|| FsError::Io {
+                    path: path.to_path_buf(),
+                    source: std::io::Error::from(std::io::ErrorKind::NotFound),
+                })
         }
-        fn exists(&self, _: &Path) -> bool {
-            false
+        fn exists(&self, path: &Path) -> bool {
+            self.files.lock().unwrap().contains_key(path)
         }
         fn mkdir_p(&self, _: &Path) -> Result<(), FsError> {
             Ok(())

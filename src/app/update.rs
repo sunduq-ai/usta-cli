@@ -123,13 +123,50 @@ where
     C: Clock,
 {
     // 1. Read snapshot + prior lock.
-    let mut snapshot = read_snapshot(fs)?;
+    let snapshot = read_snapshot(fs)?;
     let prior_lock = read_lock(fs)?;
 
     // 2. Resolve the prior feature set against the (possibly newer) template.
     use std::collections::BTreeSet;
     let prior_features: BTreeSet<_> = snapshot.features.iter().cloned().collect();
     let resolved = resolver::resolve(&template.manifest, &prior_features)?;
+
+    regenerate(
+        fs,
+        renderer,
+        clock,
+        template,
+        resolved,
+        snapshot,
+        prior_lock,
+        req.usta_version,
+    )
+}
+
+/// Shared regeneration engine for `update` and `add`.
+///
+/// Re-renders the project from the template for `resolved` features,
+/// 3-way-merges each file against the live tree via the lock, then strips
+/// any residual anchor markers so no marker ever survives into the user's
+/// source. `update` calls this with the project's existing feature set;
+/// `add` calls it with the existing set plus the newly requested features.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn regenerate<F, R, C>(
+    fs: &F,
+    renderer: &R,
+    clock: &C,
+    template: &LoadedTemplate,
+    resolved: Vec<crate::core::template::FeatureId>,
+    mut snapshot: Snapshot,
+    prior_lock: ManagedLock,
+    usta_version: String,
+) -> Result<UpdateOutcome, UpdateError>
+where
+    F: FileSystem,
+    R: TemplateRenderer,
+    C: Clock,
+{
+    use std::collections::BTreeSet;
 
     // 3. Build the full plan (base + features) with the original answers.
     let plan = plan_builder::build_plan(template, &resolved, &snapshot.answers, PathBuf::new());
@@ -250,9 +287,22 @@ where
         }
     }
 
-    // 6. Persist.
+    // 6. Finalization: strip any residual anchor markers from the files we
+    //    wrote this run (added/overwritten/unchanged — never conflicts,
+    //    which hold the user's own content). This guarantees markers never
+    //    survive into the project regardless of which features are active.
+    let wrote: Vec<PathBuf> = outcome
+        .added
+        .iter()
+        .chain(outcome.overwritten.iter())
+        .chain(outcome.unchanged.iter())
+        .cloned()
+        .collect();
+    crate::app::scaffold::plan_executor::strip_residual_markers(fs, &wrote, &mut new_lock)?;
+
+    // 7. Persist.
     snapshot.template_version = template.manifest.meta.version.clone();
-    snapshot.usta_version = req.usta_version;
+    snapshot.usta_version = usta_version;
     snapshot.created_at = clock.now_rfc3339();
     snapshot.features = resolved;
     snapshot::write_snapshot(fs, &snapshot, &new_lock).map_err(UpdateError::Scaffold)?;

@@ -1,8 +1,11 @@
 //! `usta add <feature>` — apply a feature to an already-scaffolded project.
 //!
-//! Limitation: features whose contributions inject into anchor markers that
-//! have already been finalized (markers stripped from the file) cannot be
-//! added post-hoc. Such cases surface as an `AnchorMarkerMissing` error.
+//! `add` re-renders the project from the template for the augmented feature
+//! set and 3-way-merges against the live tree (see the `add` use case in
+//! `crate::app::add`). Injection-based features work post-hoc without
+//! relying on anchor markers surviving in the user's source. If a managed
+//! file was edited locally, the re-render is written to `.usta/proposed/`
+//! and reported as a conflict (exit 40), same as `usta update`.
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -23,10 +26,6 @@ pub struct AddArgs {
     /// Feature ids to add (comma-separated allowed via positional list).
     #[arg(required = true, num_args = 1..)]
     pub features: Vec<String>,
-
-    /// Overwrite existing managed files when contributions collide.
-    #[arg(long)]
-    pub force: bool,
 
     /// Project root (defaults to current directory).
     #[arg(long)]
@@ -88,7 +87,6 @@ pub fn run(args: AddArgs) -> Result<()> {
         add::AddRequest {
             new_features,
             usta_version: env!("CARGO_PKG_VERSION").to_string(),
-            force: args.force,
         },
     )
     .map_err(|e| anyhow!("add failed: {e}"))?;
@@ -113,6 +111,24 @@ pub fn run(args: AddArgs) -> Result<()> {
             .collect::<Vec<_>>()
             .join(", ")
     );
+
+    // If the re-render conflicted with the user's local edits, the proposed
+    // content was written under `.usta/proposed/`. Surface it the same way
+    // `usta update` does (exit 40) so scripts can react.
+    if !outcome.conflicts.is_empty() {
+        for p in &outcome.conflicts {
+            println!(
+                "  ! conflict    {} (proposed at .usta/proposed/{})",
+                p.display(),
+                p.display()
+            );
+        }
+        println!(
+            "→ {} conflict(s); inspect `.usta/proposed/<path>` and merge manually.",
+            outcome.conflicts.len()
+        );
+        std::process::exit(40);
+    }
     Ok(())
 }
 

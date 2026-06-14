@@ -146,18 +146,21 @@ fn adding_unknown_feature_errors() {
 }
 
 #[test]
-fn add_inject_when_marker_still_present_succeeds() {
-    // Scaffold without `with-router`: nothing has consumed the
-    // `usta:imports` marker yet, so it's still in `index.js`. Adding
-    // `with-router` post-hoc should successfully inject.
+fn add_injection_feature_post_hoc_succeeds() {
+    // `new` strips every anchor marker, so the scaffolded `index.js` carries
+    // no `usta:imports` marker. Adding `with-router` post-hoc must still
+    // inject correctly — `add` re-renders the file from the template (which
+    // has the marker) and re-applies all features, rather than depending on
+    // a live marker in the user's source.
     let workdir = tempdir().unwrap();
     let project = scaffold_hello(workdir.path(), "add-inject-ok", &["greeting"]);
 
     let js_before = fs::read_to_string(project.join("index.js")).unwrap();
     assert!(
-        js_before.contains("usta:imports"),
-        "marker should still be present when no feature consumed it"
+        !js_before.contains("usta:"),
+        "no anchor marker may leak into scaffolded output:\n{js_before}"
     );
+    assert!(!js_before.contains("require('./router')"));
 
     Command::cargo_bin("usta")
         .expect("binary")
@@ -168,35 +171,48 @@ fn add_inject_when_marker_still_present_succeeds() {
         .success();
 
     let js_after = fs::read_to_string(project.join("index.js")).unwrap();
-    assert!(js_after.contains("const router = require('./router');"));
-    assert!(!js_after.contains("usta:imports"));
+    assert!(
+        js_after.contains("const router = require('./router');"),
+        "router import should be injected post-hoc:\n{js_after}"
+    );
+    assert!(
+        !js_after.contains("usta:"),
+        "no anchor marker may survive `add` either:\n{js_after}"
+    );
 }
 
 #[test]
-fn anchor_inject_post_hoc_surfaces_helpful_error_when_marker_gone() {
-    // Simulate a prior feature having consumed the marker by manually
-    // stripping it. Adding a feature that wants to inject into it should
-    // surface a helpful "use `usta update`" error.
+fn new_then_add_never_leak_anchor_markers() {
+    // Regression for the marker-leak bug: a partial-feature scaffold used to
+    // leave internal `usta:` markers in the user's source whenever the
+    // optional feature targeting a marker wasn't selected. Neither `new` nor
+    // a subsequent `add` may leave any marker behind.
     let workdir = tempdir().unwrap();
-    let project = scaffold_hello(workdir.path(), "inject-after-gone", &["greeting"]);
+    let project = scaffold_hello(workdir.path(), "no-leak", &["greeting"]);
 
-    // Manually remove the marker line.
-    let js_path = project.join("index.js");
-    let content = fs::read_to_string(&js_path).unwrap();
-    let stripped: String = content
-        .lines()
-        .filter(|l| !l.contains("usta:imports"))
-        .collect::<Vec<_>>()
-        .join("\n");
-    fs::write(&js_path, stripped).unwrap();
+    // After scaffold: zero markers anywhere.
+    let js = fs::read_to_string(project.join("index.js")).unwrap();
+    assert!(!js.contains("usta:"), "scaffold leaked a marker:\n{js}");
 
+    // After add: still zero markers, and the injection landed.
     Command::cargo_bin("usta")
         .expect("binary")
         .current_dir(&project)
         .args(["add", "with-router", "--templates-dir"])
         .arg(templates_dir())
         .assert()
-        .failure()
-        .stderr(predicates::str::contains("usta update"))
-        .stderr(predicates::str::contains("usta:imports"));
+        .success();
+
+    let js = fs::read_to_string(project.join("index.js")).unwrap();
+    assert!(!js.contains("usta:"), "add leaked a marker:\n{js}");
+    assert!(js.contains("require('./router')"));
+
+    // verify must still report a clean tree.
+    Command::cargo_bin("usta")
+        .expect("binary")
+        .current_dir(&project)
+        .args(["verify"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("no drift"));
 }

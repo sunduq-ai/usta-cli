@@ -88,6 +88,22 @@ pub fn apply_injections(source: &str, contributions: &[AnchorContribution]) -> S
     out
 }
 
+/// Remove every remaining `usta:*` anchor-marker line from `source`.
+///
+/// Markers are an authoring-time mechanism: features inject around them and
+/// the marker line is consumed in the process. Any marker with no
+/// contribution would otherwise survive into the generated project as a
+/// stray comment (e.g. `# usta:imports`). This is the finalization pass that
+/// guarantees no marker ever reaches a user's source tree, regardless of
+/// which optional features were selected.
+///
+/// Implemented as [`apply_injections`] with no contributions: every marker
+/// line is matched and dropped, non-marker lines pass through untouched.
+/// Idempotent — running it on already-clean content is a no-op.
+pub fn strip_markers(source: &str) -> String {
+    apply_injections(source, &[])
+}
+
 /// If `line` is a marker comment, return the marker name (e.g. `"usta:imports"`).
 fn detect_marker(line: &str) -> Option<String> {
     let trimmed = line.trim_start();
@@ -189,5 +205,26 @@ mod tests {
         let src = "<App>\n  {/* usta:children */}\n</App>\n";
         let out = apply_injections(src, &[c("usta:children", "<Hello />")]);
         assert_eq!(out, "<App>\n  <Hello />\n</App>\n");
+    }
+
+    #[test]
+    fn strip_markers_removes_all_unused_markers() {
+        let src = "import os\n# usta:imports\n\ndef main():\n    # usta:body\n    pass\n";
+        let out = strip_markers(src);
+        assert_eq!(out, "import os\n\ndef main():\n    pass\n");
+        assert!(!out.contains("usta:"));
+    }
+
+    #[test]
+    fn strip_markers_is_noop_on_clean_content() {
+        let src = "import os\n\ndef main():\n    pass\n";
+        assert_eq!(strip_markers(src), src);
+    }
+
+    #[test]
+    fn strip_markers_is_idempotent() {
+        let src = "a\n// usta:x\nb\n";
+        let once = strip_markers(src);
+        assert_eq!(strip_markers(&once), once);
     }
 }

@@ -10,7 +10,31 @@ in each template's `template.toml` and pinned in every generated project's
 
 ## [Unreleased]
 
-_Nothing yet._
+### Fixed
+- **Anchor markers no longer leak into generated projects.** A scaffold
+  that didn't select every optional feature used to leave internal
+  `usta:*` marker comments (e.g. `# usta:imports`) in the user's source.
+  `new` now strips all residual markers as a finalization pass, so output
+  is always marker-free regardless of which features are chosen.
+- **`usta completions powershell`** is now accepted (previously only the
+  kebab-cased `power-shell` worked).
+- **MSRV corrected to 1.85** (was a fictional 1.75; the dependency tree
+  requires 1.85). The CI `msrv` job now genuinely enforces it.
+
+### Changed
+- **`usta add` re-renders from the template** for the augmented feature
+  set and 3-way-merges against the working tree (sharing the `usta update`
+  engine), instead of editing live anchor markers. Injection-based
+  features apply post-hoc cleanly; if a managed file was edited locally
+  the re-render lands in `.usta/proposed/` as a conflict (exit 40). The
+  old `AnchorMarkerMissing` failure path is gone.
+
+### Removed
+- Unimplemented stub subcommands `search`, `install`, and `self-update`
+  (deferred to v0.2; clap now returns a clean "unrecognized subcommand").
+- Dead flags that were parsed but never acted on: `new --pm`/`--verify`,
+  `extract --interactive`/`--yes`, `update --to`/`--interactive`/`--abort`,
+  `add --dry-run`/`--force`.
 
 ## [0.1.0] — 2026-05-17
 
