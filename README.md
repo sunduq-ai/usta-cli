@@ -14,8 +14,10 @@ saving tokens on app creation.
 
 ## Quick start
 
+Requires **Rust 1.85 or newer** (`rustc --version` to check; `rustup update` to upgrade).
+
 ```bash
-# install (after first release — see "Status" below)
+# install from crates.io
 cargo install usta
 
 # discover what's available

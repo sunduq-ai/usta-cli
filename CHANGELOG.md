@@ -12,6 +12,19 @@ in each template's `template.toml` and pinned in every generated project's
 
 _Nothing yet._
 
+## [0.2.1] — 2026-05-17
+
+Packaging and docs only — no code or behavior changes.
+
+### Changed
+- **Leaner published crate.** Dev-only files (`.cursor/`, `.github/`,
+  `scripts/`, `.editorconfig`, `clippy.toml`, `rustfmt.toml`,
+  `rust-toolchain.toml`) are now excluded from the `cargo publish`
+  tarball (200 → 182 files). Everything the README links to plus
+  `templates/`, `src/`, and `tests/` still ships.
+- **README** now states the `Rust 1.85+` requirement up front in the
+  Quick start, so users on an older toolchain know before `cargo install`.
+
 ## [0.2.0] — 2026-05-17
 
 Breaking release. Trims the CLI to only what works, fixes a marker-leak
