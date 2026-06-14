@@ -163,6 +163,22 @@ fn completions_fish_emits_complete_directives() {
     assert!(text.contains("complete -c usta"));
 }
 
+#[test]
+fn completions_accept_canonical_shell_names() {
+    // Regression: a custom `Shell` ValueEnum had clap kebab-case the
+    // `PowerShell` variant to `power-shell`, so the obvious `powershell`
+    // spelling was rejected. We now use `clap_complete::Shell` directly,
+    // whose value is the canonical one-word `powershell`. Every shell name
+    // a user would actually type must be accepted.
+    for shell in ["bash", "zsh", "fish", "powershell", "elvish"] {
+        Command::cargo_bin("usta")
+            .expect("binary")
+            .args(["completions", shell])
+            .assert()
+            .success();
+    }
+}
+
 // ─────────────────────────── usta doctor ───────────────────────────────
 
 #[test]

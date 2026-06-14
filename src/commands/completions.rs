@@ -9,47 +9,23 @@
 //! ```
 
 use anyhow::Result;
-use clap::{Args, ValueEnum};
-use clap_complete::{generate, Shell as ClapShell};
-
-#[derive(Debug, Clone, Copy, ValueEnum)]
-#[allow(clippy::enum_variant_names)]
-pub enum Shell {
-    /// Bash.
-    Bash,
-    /// Zsh.
-    Zsh,
-    /// Fish.
-    Fish,
-    /// PowerShell.
-    PowerShell,
-    /// Elvish.
-    Elvish,
-}
-
-impl From<Shell> for ClapShell {
-    fn from(s: Shell) -> Self {
-        match s {
-            Shell::Bash => ClapShell::Bash,
-            Shell::Zsh => ClapShell::Zsh,
-            Shell::Fish => ClapShell::Fish,
-            Shell::PowerShell => ClapShell::PowerShell,
-            Shell::Elvish => ClapShell::Elvish,
-        }
-    }
-}
+use clap::Args;
+use clap_complete::{generate, Shell};
 
 #[derive(Debug, Args)]
 pub struct CompletionsArgs {
     /// Shell to generate completions for.
+    ///
+    /// Uses `clap_complete`'s canonical names directly, so the value reads
+    /// the way people actually spell it: `bash`, `zsh`, `fish`,
+    /// `powershell`, `elvish`.
     pub shell: Shell,
 }
 
 /// Generate completions for the given shell from the supplied `clap::Command`.
 pub fn run(args: CompletionsArgs, cmd: &mut clap::Command) -> Result<()> {
-    let shell: ClapShell = args.shell.into();
     let bin_name = cmd.get_name().to_string();
     let mut stdout = std::io::stdout();
-    generate(shell, cmd, bin_name, &mut stdout);
+    generate(args.shell, cmd, bin_name, &mut stdout);
     Ok(())
 }
