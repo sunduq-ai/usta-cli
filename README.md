@@ -12,15 +12,89 @@ template upgrades, and synthesizes new templates from existing repositories
 — **without making any network LLM calls**. The headline use case is
 saving tokens on app creation.
 
-## Quick start
+## Installation
 
-Requires **Rust 1.85 or newer** (`rustc --version` to check; `rustup update` to upgrade).
+### 1. Prerequisite — Rust 1.85 or newer
+
+usta is distributed as a Rust crate. If you don't have Rust yet, install
+it with [rustup](https://rustup.rs):
 
 ```bash
-# install from crates.io
-cargo install usta
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
-# discover what's available
+Already have Rust? Make sure it's new enough:
+
+```bash
+rustc --version   # must be 1.85.0 or newer
+rustup update     # run this if it isn't
+```
+
+### 2. Install the binary
+
+```bash
+cargo install usta
+```
+
+This compiles `usta` and places it in Cargo's bin directory
+(`~/.cargo/bin/usta` on macOS/Linux, `%USERPROFILE%\.cargo\bin\usta.exe`
+on Windows). The two built-in templates are **baked into the binary**, so
+there's nothing else to download — it works offline immediately.
+
+### 3. Put it on your PATH
+
+`cargo install` drops binaries in `~/.cargo/bin`. rustup normally adds
+that directory to your `PATH` automatically — confirm with:
+
+```bash
+usta --version    # prints e.g. "usta 0.3.0"
+```
+
+If you instead see `command not found: usta`, add Cargo's bin directory
+to your `PATH`:
+
+```bash
+# bash
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+
+# zsh
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+
+# fish
+fish_add_path "$HOME/.cargo/bin"
+```
+
+On **Windows**, add `%USERPROFILE%\.cargo\bin` to your user `PATH` via
+*Settings → System → Environment Variables*, then open a new terminal.
+
+Re-run `usta --version` to confirm it resolves.
+
+### 4. (optional) Shell completions
+
+```bash
+# zsh — write into a directory on your $fpath
+usta completions zsh > "${fpath[1]}/_usta"
+
+# bash
+usta completions bash | sudo tee /etc/bash_completion.d/usta > /dev/null
+
+# fish
+usta completions fish > ~/.config/fish/completions/usta.fish
+```
+
+### Or build from source
+
+```bash
+git clone https://github.com/sunduq-ai/usta-cli
+cd usta-cli
+cargo build --release
+./target/release/usta --help        # or copy target/release/usta onto your PATH
+```
+
+## Quick start
+
+```bash
+# discover what's available (built-in templates need no setup)
 usta list templates
 usta list features --template nx-monorepo
 
@@ -43,10 +117,11 @@ cd my-app && usta update
 # turn an existing repo into a reusable template (deterministic, no LLM)
 usta extract ~/code/my-existing-app --out ./templates --name my-stack
 
-# author tooling
-usta schema template > template.schema.json
-usta completions zsh > "${fpath[1]}/_usta"
+# check your toolchain (node, pnpm, uv, python3, …) for the stacks you scaffold
 usta doctor
+
+# emit a JSON Schema for editor autocomplete on template manifests
+usta schema template > template.schema.json
 ```
 
 ## Why `usta` and not …?
@@ -99,19 +174,9 @@ exit-code table, and [`AGENTS.md`](./AGENTS.md) for the rules of the road.
 Engine, two built-in templates (`hello-world`, `nx-monorepo` with 13
 features) **embedded in the binary** so `cargo install usta` works with
 zero setup, `extract` / `verify` / `add` / `update`, schema export,
-dry-run preview, record/replay, 162 tests passing. Install with
-`cargo install usta`.
+dry-run preview, record/replay, 162 tests passing.
 
-Build from source if you prefer:
-
-```bash
-git clone https://github.com/sunduq-ai/usta-cli
-cd usta-cli
-cargo build --release
-./target/release/usta --help
-```
-
-Phase-by-phase progress + the v0.2 roadmap live in [`PLAN.md`](./PLAN.md).
+Phase-by-phase progress + the roadmap live in [`PLAN.md`](./PLAN.md).
 
 ## Contributing
 
