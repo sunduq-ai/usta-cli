@@ -12,6 +12,17 @@ in each template's `template.toml` and pinned in every generated project's
 
 _Nothing yet._
 
+## [0.3.1] — 2026-05-17
+
+Docs only — no code changes.
+
+### Changed
+- **README:** added a step-by-step Installation section, including PATH
+  setup (verify with `usta --version`; per-shell instructions to add
+  `~/.cargo/bin` on bash/zsh/fish, plus Windows guidance) and optional
+  shell-completions setup. Published so the crates.io page carries the
+  same guide as GitHub.
+
 ## [0.3.0] — 2026-05-17
 
 Makes `cargo install usta` actually usable out of the box, plus friendlier

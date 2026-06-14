@@ -1,7 +1,7 @@
 [package]
 name = "usta"
 description = "Multi-stack project scaffolder with deterministic template extraction."
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 # Dependency-driven MSRV: clap 4.6, the RustCrypto stack (sha2 0.11 →
 # crypto-common/block-buffer), and others require 1.85. Verified against
