@@ -1,6 +1,6 @@
 //! `usta new` — scaffold a new project from a template.
 //!
-//! P1 wiring: validate name → load template from filesystem source → run
+//! Pipeline: validate name → load template from filesystem source → run
 //! prompts (or default-through with `--yes`) → resolve features → execute
 //! scaffold via `ScaffoldService`.
 
@@ -21,7 +21,7 @@ pub struct NewArgs {
     /// Project name (kebab-case). Prompted if omitted.
     pub name: Option<String>,
 
-    /// Template id, or `gh:org/repo` for a registry template (P5).
+    /// Template id to scaffold from.
     #[arg(long, default_value = "hello-world")]
     pub template: String,
 
@@ -29,19 +29,19 @@ pub struct NewArgs {
     #[arg(long, value_delimiter = ',')]
     pub features: Vec<String>,
 
-    /// Package manager to invoke for install (P5).
-    #[arg(long)]
-    pub pm: Option<String>,
-
-    /// Skip `git init` after scaffold. (Hooked up in P5.)
+    /// Reserved: skip `git init` after scaffold. `usta` does not run
+    /// `git init` yet, so this is currently a no-op accepted for
+    /// forward compatibility.
     #[arg(long)]
     pub no_git: bool,
 
-    /// Skip running the package manager's install. (Hooked up in P5.)
+    /// Reserved: skip the package-manager install after scaffold. `usta`
+    /// does not run an install yet, so this is currently a no-op accepted
+    /// for forward compatibility.
     #[arg(long)]
     pub no_install: bool,
 
-    /// Print the plan instead of writing files. Hooked up in P1.j.
+    /// Print the plan instead of writing files.
     #[arg(long)]
     pub dry_run: bool,
 
@@ -52,10 +52,6 @@ pub struct NewArgs {
     /// Overwrite a non-empty target directory.
     #[arg(long)]
     pub force: bool,
-
-    /// Run lint/typecheck/build after scaffold (P5).
-    #[arg(long)]
-    pub verify: bool,
 
     /// Record all answered prompts (incl. project name + features) to a
     /// TOML file. Useful for testing / CI / sharing setup recipes.
@@ -74,8 +70,7 @@ pub struct NewArgs {
     pub scope: Option<String>,
 
     /// Directory containing template definitions. Defaults to `./templates/`
-    /// in the current directory; in P5 this is replaced by an embedded +
-    /// cache + registry composite.
+    /// in the current directory (or the nearest ancestor that has one).
     #[arg(long, env = "USTA_TEMPLATES_DIR")]
     pub templates_dir: Option<PathBuf>,
 

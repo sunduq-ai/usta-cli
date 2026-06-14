@@ -14,7 +14,7 @@ use clap::{Args, ValueEnum};
 pub enum Kind {
     /// Schema for `template.toml`.
     Template,
-    /// Schema for `feature.toml` (per-feature local manifest, P5+).
+    /// Schema for `feature.toml` (per-feature local manifest; reserved for a future release).
     Feature,
 }
 
@@ -138,7 +138,7 @@ const FEATURE_SCHEMA: &str = r##"{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/sunduq-ai/usta-cli/schemas/feature.schema.json",
   "title": "usta per-feature manifest",
-  "description": "Reserved for P5+ (per-feature `feature.toml` overlays declaring deps + hooks). Kept as a permissive placeholder so editors don't fail validation today.",
+  "description": "Reserved for a future release (per-feature `feature.toml` overlays declaring deps + hooks). Kept as a permissive placeholder so editors don't fail validation today.",
   "type": "object",
   "additionalProperties": true,
   "properties": {

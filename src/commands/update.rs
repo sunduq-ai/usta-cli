@@ -23,34 +23,9 @@ pub struct UpdateArgs {
     /// Templates directory; falls back to walking up from cwd.
     #[arg(long, env = "USTA_TEMPLATES_DIR")]
     pub templates_dir: Option<PathBuf>,
-
-    /// (P5) Pin a target template version. Currently uses the templates
-    /// dir's on-disk version.
-    #[arg(long)]
-    pub to: Option<String>,
-
-    /// (P5) Pause on every conflict to prompt for resolution.
-    #[arg(long)]
-    pub interactive: bool,
-
-    /// (P5) Restore pre-update state from `.usta/snapshot.toml`.
-    #[arg(long, conflicts_with = "interactive")]
-    pub abort: bool,
 }
 
 pub fn run(args: UpdateArgs) -> Result<()> {
-    if args.abort {
-        return Err(anyhow!(
-            "`--abort` lands in P5 with full snapshot history; use git to revert for now"
-        ));
-    }
-    if args.interactive {
-        eprintln!("usta: --interactive lands in P5; running in non-interactive mode.");
-    }
-    if let Some(_v) = args.to.as_deref() {
-        eprintln!("usta: --to lands in P5 with the registry; using the on-disk template version.");
-    }
-
     let project_root = args
         .cwd
         .clone()

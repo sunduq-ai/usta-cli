@@ -67,17 +67,8 @@ enum Command {
     /// Verify required tools and environment.
     Doctor(commands::doctor::DoctorArgs),
 
-    /// Discover community templates via GitHub topic.
-    Search(commands::search::SearchArgs),
-
-    /// Install a community template into the local cache.
-    Install(commands::install::InstallArgs),
-
     /// Generate shell completions.
     Completions(commands::completions::CompletionsArgs),
-
-    /// Replace this binary with the latest release.
-    SelfUpdate(commands::self_update::SelfUpdateArgs),
 
     /// Emit JSON Schema for template / feature manifests.
     Schema(commands::schema::SchemaArgs),
@@ -104,14 +95,11 @@ fn main() -> Result<()> {
         Some(Command::Verify(args)) => commands::verify::run(args),
         Some(Command::List(cmd)) => commands::list::run(cmd),
         Some(Command::Doctor(args)) => commands::doctor::run(args),
-        Some(Command::Search(args)) => commands::search::run(args),
-        Some(Command::Install(args)) => commands::install::run(args),
         Some(Command::Completions(args)) => {
             use clap::CommandFactory;
             let mut cmd = Cli::command();
             commands::completions::run(args, &mut cmd)
         }
-        Some(Command::SelfUpdate(args)) => commands::self_update::run(args),
         Some(Command::Schema(args)) => commands::schema::run(args),
     }
 }

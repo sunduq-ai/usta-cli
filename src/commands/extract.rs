@@ -14,7 +14,7 @@ use clap::Args;
 
 #[derive(Debug, Args)]
 pub struct ExtractArgs {
-    /// Path to a local repo (URL clones land in P5).
+    /// Path to a local repository to synthesize a template from.
     pub repo: PathBuf,
 
     /// Parent directory under which the synthesized template will be
@@ -34,14 +34,6 @@ pub struct ExtractArgs {
     /// Overwrite an existing `<out>/<template-id>/` directory.
     #[arg(long)]
     pub force: bool,
-
-    /// Reserved for P3.5 — interactive ambiguous-file prompts.
-    #[arg(long)]
-    pub interactive: bool,
-
-    /// Reserved for P3.5 — accept all heuristic decisions silently.
-    #[arg(short = 'y', long, conflicts_with = "interactive")]
-    pub yes: bool,
 }
 
 pub fn run(args: ExtractArgs) -> Result<()> {

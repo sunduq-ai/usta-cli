@@ -10,7 +10,24 @@ in each template's `template.toml` and pinned in every generated project's
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.1.0] — 2026-05-17
+
+The initial release. The engine + the `nx-monorepo` template land here.
+Published to crates.io as a single `usta` crate.
+
+The shipping CLI surface is **9 subcommands**: `new`, `extract`, `update`,
+`add`, `verify`, `list`, `doctor`, `completions`, `schema`. The
+GitHub-topic template registry (`search` / `install`) and binary
+self-update (`self-update`) are deferred to v0.2; their stubs were
+removed before release rather than shipped as commands that only error.
+
 ### Added
+
+- **Multi-stack scaffolder** (`usta new`) with feature opt-in, JSON/TOML
+  deep-merge, and anchor-marker injection (Python `#`, JS/TS/Rust `//`,
+  HTML `<!-- -->`, JSX `{/* */}`).
 - `usta list templates` and `usta list features --template <id>` for
   discovering installed templates and inspecting features (with `--json`).
 - `usta completions <bash|zsh|fish|powershell|elvish>` for shell completions.
@@ -20,16 +37,6 @@ in each template's `template.toml` and pinned in every generated project's
   manifest format, suitable for editor autocomplete.
 - `usta new --dry-run` previews the scaffold plan (per-file `+`/`~`/`*`
   annotations for write/merge/inject) without touching disk.
-
-## [0.1.0] — TBD
-
-The initial release. The engine + the `nx-monorepo` template land here.
-
-### Added
-
-- **Multi-stack scaffolder** (`usta new`) with feature opt-in, JSON/TOML
-  deep-merge, and anchor-marker injection (Python `#`, JS/TS/Rust `//`,
-  HTML `<!-- -->`, JSX `{/* */}`).
 - **`usta extract <repo>`**: deterministic repo → template synthesizer
   with `.gitignore` / `.usta-extract-ignore` support, identifier
   substitution, default-noise drop list, feature partitioning. **No LLM

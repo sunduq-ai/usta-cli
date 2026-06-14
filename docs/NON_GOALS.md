@@ -38,9 +38,9 @@ rarely repays the effort for a tool people invoke a few times per project.
 
 ## Cloud sync of templates / hosted registry
 
-GitHub already does this. We ship `usta install <gh-org>/<repo>` and a
-topic-based registry; that is enough. We do not run a service, we do not
-host an index, we do not require accounts.
+GitHub already does this. The planned `usta install <gh-org>/<repo>` plus
+a topic-based registry (v0.2) is enough. We do not run a service, we do
+not host an index, we do not require accounts.
 
 ## Network LLM calls in core flows
 

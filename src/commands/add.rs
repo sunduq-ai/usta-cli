@@ -1,9 +1,8 @@
 //! `usta add <feature>` — apply a feature to an already-scaffolded project.
 //!
-//! P4.b limitation: features whose contributions inject into anchor markers
-//! that have already been finalized (markers stripped from the file) cannot
-//! be added post-hoc. Such cases surface as an `AnchorMarkerMissing` error
-//! with a pointer to `usta update` (P4.c).
+//! Limitation: features whose contributions inject into anchor markers that
+//! have already been finalized (markers stripped from the file) cannot be
+//! added post-hoc. Such cases surface as an `AnchorMarkerMissing` error.
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -24,10 +23,6 @@ pub struct AddArgs {
     /// Feature ids to add (comma-separated allowed via positional list).
     #[arg(required = true, num_args = 1..)]
     pub features: Vec<String>,
-
-    /// Print the plan instead of writing files. (Hooked up in P1.j.)
-    #[arg(long)]
-    pub dry_run: bool,
 
     /// Overwrite existing managed files when contributions collide.
     #[arg(long)]

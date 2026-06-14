@@ -63,7 +63,7 @@ pub enum AddError {
     #[error("feature `{0}` is already applied to this project")]
     AlreadyApplied(String),
     /// The new feature wants to inject into a marker that no longer exists.
-    /// Direct the user at `usta update` (P4.c).
+    /// Direct the user at `usta update`.
     #[error("feature `{feature}` wants to inject into `{path}` but marker `{marker}` is no longer present (use `usta update` to re-render)")]
     AnchorMarkerMissing {
         /// Feature being added.

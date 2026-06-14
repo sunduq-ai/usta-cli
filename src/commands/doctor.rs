@@ -71,7 +71,7 @@ const CHECKS: &[ToolCheck] = &[
     ToolCheck {
         name: "go",
         version_arg: "version",
-        why: "Go templates (P5+)",
+        why: "Go templates (planned)",
     },
     ToolCheck {
         name: "docker",

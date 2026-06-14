@@ -99,8 +99,8 @@ The v0.2 ports are kept compiling today (with `#![allow(dead_code)]` on
 
 ## CLI surface vs. use-case layer
 
-`crate::app` has 6 use cases. The CLI binary has 12 subcommands —
-the difference is that 6 CLI subcommands are pure presentation / I/O and
+`crate::app` has 6 use cases. The CLI binary has 9 subcommands — the
+difference is that 3 CLI subcommands are pure presentation / I/O and
 live entirely under `src/commands/` with no use-case backing:
 
 | Subcommand | Backed by use case in `crate::app` |
@@ -112,11 +112,13 @@ live entirely under `src/commands/` with no use-case backing:
 | `usta extract` | `extract::service` |
 | `usta list templates` / `usta list features` | `list::*` |
 | `usta doctor` | — pure binary |
-| `usta search` | — pure binary |
-| `usta install` | — pure binary |
 | `usta completions` | — pure binary (uses `clap_complete`) |
-| `usta self-update` | — pure binary |
 | `usta schema` | — pure binary |
+
+`usta search`, `usta install`, and `usta self-update` were stubbed in
+the v0.1.0 surface but removed before the crates.io publish — they only
+ever exited 64. They return in v0.2 alongside the GitHub-topic template
+registry and cargo-dist binary distribution.
 
 ## Why hexagonal, here?
 
