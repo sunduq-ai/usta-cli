@@ -5,7 +5,7 @@
 //! scaffold via `ScaffoldService`.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::core::project::ProjectName;
 use crate::core::template::{FeatureId, PromptKind, TemplateId};
@@ -29,15 +29,16 @@ pub struct NewArgs {
     #[arg(long, value_delimiter = ',')]
     pub features: Vec<String>,
 
-    /// Reserved: skip `git init` after scaffold. `usta` does not run
-    /// `git init` yet, so this is currently a no-op accepted for
-    /// forward compatibility.
+    /// Skip initializing a git repository (and the initial commit) after
+    /// scaffolding. By default `usta` runs `git init` + an initial commit
+    /// when `git` is on PATH.
     #[arg(long)]
     pub no_git: bool,
 
-    /// Reserved: skip the package-manager install after scaffold. `usta`
-    /// does not run an install yet, so this is currently a no-op accepted
-    /// for forward compatibility.
+    /// Skip installing dependencies after scaffolding. By default `usta`
+    /// detects the project's package managers (pnpm / npm / uv / go) and
+    /// runs their install in each relevant directory, skipping any tool
+    /// that isn't on PATH.
     #[arg(long)]
     pub no_install: bool,
 
@@ -336,8 +337,86 @@ pub fn run(args: NewArgs) -> Result<()> {
                 .join(", ")
         }
     );
+
+    // 8. Post-scaffold actions (best-effort): git init + dependency install.
+    //    The project is already on disk; nothing here can fail the command.
+    run_post_scaffold(&target, args.no_git, args.no_install);
+
     println!("→ next: cd {}", target.display());
     Ok(())
+}
+
+/// Best-effort post-scaffold actions: initialize a git repository and install
+/// dependencies. The scaffold already succeeded and the files are on disk, so
+/// every failure here is surfaced as a note/warning — never an error that
+/// would make `usta new` exit non-zero.
+fn run_post_scaffold(target: &Path, no_git: bool, no_install: bool) {
+    // Install BEFORE the initial commit so a generated lockfile
+    // (package-lock.json, uv.lock, …) is captured in that commit and the
+    // working tree is clean afterward. Dependency directories themselves
+    // (node_modules, .venv) are gitignored by the templates.
+    if !no_install {
+        install_dependencies(target);
+    }
+    if !no_git {
+        init_git_repo(target);
+    }
+}
+
+/// `git init` + stage + initial commit, unless the target is already a repo
+/// or `git` is missing.
+fn init_git_repo(target: &Path) {
+    use crate::adapters::vcs::GitCli;
+    use crate::ports::vcs::VcsClient;
+
+    if target.join(".git").exists() {
+        return; // already a repo — don't clobber
+    }
+    let git = GitCli::new();
+    if !git.is_available() {
+        eprintln!("  note: skipped git init (git not found on PATH)");
+        return;
+    }
+    let res = git
+        .init(target)
+        .and_then(|_| git.add_all(target))
+        .and_then(|_| git.commit(target, "Initial commit (scaffolded by usta)"));
+    match res {
+        Ok(()) => println!("✓ initialized a git repository with an initial commit"),
+        Err(e) => eprintln!("  warning: git init skipped: {e}"),
+    }
+}
+
+/// Detect the project's package managers and run their install in each
+/// relevant directory. Missing tools are skipped with a note; install
+/// failures warn but don't abort.
+fn install_dependencies(target: &Path) {
+    use crate::adapters::pkg_manager::detect;
+    use crate::ports::pkg_manager::PackageManager;
+
+    let targets = detect(target);
+    for t in targets {
+        let pm = t.ecosystem.manager();
+        let dir = target.join(&t.dir);
+        let loc = if t.dir.as_os_str().is_empty() {
+            ".".to_string()
+        } else {
+            t.dir.display().to_string()
+        };
+        if !pm.is_available() {
+            eprintln!(
+                "  note: skipped `{}` install in {loc} ({} not found on PATH)",
+                pm.id(),
+                pm.id()
+            );
+            continue;
+        }
+        println!("→ installing dependencies with {} in {loc} …", pm.id());
+        match pm.install(&dir) {
+            Ok(()) => println!("✓ {} install complete in {loc}", pm.id()),
+            Err(e) => eprintln!("  warning: {} install failed in {loc}: {e}", pm.id()),
+        }
+    }
 }
 
 /// Print a `--dry-run` summary of what would be written, with one line per

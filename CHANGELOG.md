@@ -12,6 +12,40 @@ in each template's `template.toml` and pinned in every generated project's
 
 _Nothing yet._
 
+## [0.4.0] — 2026-05-17
+
+### Added
+- **`usta new` now closes the scaffold loop.** After writing files it
+  initializes a git repository with an initial commit and installs
+  dependencies, so a scaffolded project is runnable immediately:
+  - **git** — `git init -b main` + stage + an initial commit. Uses your
+    configured identity, falling back to a throwaway one only if none is
+    set. Skipped (with a note) if `git` isn't on PATH, and it never
+    re-initializes or commits over a directory that's already a repo.
+  - **dependencies** — detects the project's package managers and runs
+    their install in each relevant directory: `pnpm install` for a pnpm
+    workspace (or `npm install` for a plain `package.json`), `uv sync`
+    per `pyproject.toml`, `go mod download` per `go.mod`. A pnpm workspace
+    install covers all member packages (no duplicate npm runs). The detection
+    walk skips `node_modules`/`.venv`/`target`/`.git`/`.usta`.
+  - Install runs **before** the initial commit, so generated lockfiles
+    (`pnpm-lock.yaml`, `uv.lock`, …) land in that commit and the working
+    tree is clean afterward. Dependency directories stay gitignored.
+
+### Changed
+- **Behavior change:** `usta new` previously only wrote files. By default it
+  now also runs git init + dependency install. The pre-existing `--no-git`
+  and `--no-install` flags — formerly inert no-ops — now genuinely gate these
+  steps. Pass both to restore the old "just write files" behavior.
+- Every post-scaffold action is best-effort: a missing tool is skipped with a
+  note and a failing tool warns, but neither makes `usta new` exit non-zero —
+  the files are already on disk.
+
+### Fixed
+- Package-manager availability detection no longer misreports `go` as absent
+  (`go` rejects `--version`; the check now treats a successful spawn, not a
+  zero exit, as "installed").
+
 ## [0.3.1] — 2026-05-17
 
 Docs only — no code changes.

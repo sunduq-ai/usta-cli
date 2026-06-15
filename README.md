@@ -47,7 +47,7 @@ there's nothing else to download — it works offline immediately.
 that directory to your `PATH` automatically — confirm with:
 
 ```bash
-usta --version    # prints e.g. "usta 0.3.0"
+usta --version    # prints e.g. "usta 0.4.0"
 ```
 
 If you instead see `command not found: usta`, add Cargo's bin directory
@@ -170,11 +170,13 @@ exit-code table, and [`AGENTS.md`](./AGENTS.md) for the rules of the road.
 
 ## Status
 
-**v0.3.0 — published on [crates.io](https://crates.io/crates/usta).**
+**v0.4.0 — published on [crates.io](https://crates.io/crates/usta).**
 Engine, two built-in templates (`hello-world`, `nx-monorepo` with 13
 features) **embedded in the binary** so `cargo install usta` works with
 zero setup, `extract` / `verify` / `add` / `update`, schema export,
-dry-run preview, record/replay, 162 tests passing.
+dry-run preview, record/replay, 172 tests passing. `usta new` now sets up
+git and installs dependencies, so a scaffolded project runs immediately
+(opt out with `--no-git` / `--no-install`).
 
 Phase-by-phase progress + the roadmap live in [`PLAN.md`](./PLAN.md).
 

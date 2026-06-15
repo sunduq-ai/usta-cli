@@ -19,7 +19,9 @@
 
 pub mod clock;
 pub mod fs;
+pub mod pkg_manager;
 pub mod prompts;
 pub mod renderer;
 pub mod scanner;
 pub mod templates;
+pub mod vcs;
