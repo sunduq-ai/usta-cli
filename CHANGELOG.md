@@ -12,6 +12,18 @@ in each template's `template.toml` and pinned in every generated project's
 
 _Nothing yet._
 
+## [0.4.1] — 2026-05-17
+
+### Fixed
+- **Project names may now start with a digit** (e.g. `34five`, `3d-viewer`).
+  The validator claimed to accept "the npm package-name subset" but was
+  stricter than npm, which allows a leading digit — so a perfectly valid
+  name was rejected with "must start with a lowercase ASCII letter". Names
+  must still be lowercase and may not start or end with a hyphen. Verified
+  end-to-end: `34five` scaffolds the nx-monorepo template and both `pnpm
+  install` and `uv sync` accept the generated `@34five/…` / `34five-api`
+  manifest names.
+
 ## [0.4.0] — 2026-05-17
 
 ### Added
